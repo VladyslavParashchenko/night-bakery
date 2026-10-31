@@ -1,5 +1,13 @@
 # What's new
 
+## Coming soon
+
+### Added
+
+- Sounds for a card landing in an oven, drawing, a burnt oven, "Scorched!",
+  your turn, winning and losing. Turn them off with the speaker button in the
+  menu or at the table.
+
 ## 1.3.1 — 31 October 2026
 
 ### Added

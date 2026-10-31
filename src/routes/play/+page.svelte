@@ -36,6 +36,8 @@
   import { errorMessage } from "$lib/i18n/game-labels"
   import { m } from "$lib/i18n/messages"
   import { room } from "$lib/net/room.svelte"
+  import { gameSounds } from "$lib/sound/game-sounds"
+  import { sound } from "$lib/sound/sound.svelte"
   import { game } from "$lib/stores/game.svelte"
 
   let selectedId = $state<string | null>(null)
@@ -47,6 +49,22 @@
   // An online game that ended under us goes back to the lobby to say why.
   $effect(() => {
     if (!game.state) goto(room.problem ? "/lobby" : "/")
+  })
+
+  let previous: GameState | null = null
+  $effect(() => {
+    const state = game.state
+    if (state && previous) {
+      for (const name of gameSounds(previous, state, game.me)) sound.play(name)
+    }
+    previous = state
+  })
+
+  let errorKey = game.errorKey
+  $effect(() => {
+    if (game.errorKey === errorKey) return
+    errorKey = game.errorKey
+    sound.play("error")
   })
 
   // Our own hand is never hidden; the filter only narrows the type.

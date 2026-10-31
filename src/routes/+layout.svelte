@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte"
   import { getLocale, m } from "$lib/i18n/messages"
+  import { sound } from "$lib/sound/sound.svelte"
   import { pwaInfo } from "virtual:pwa-info"
   import "../app.css"
 
@@ -47,5 +48,10 @@
     />
   {/if}
 </svelte:head>
+
+<svelte:window
+  onpointerup={() => sound.unlock()}
+  onkeydown={() => sound.unlock()}
+/>
 
 {@render children()}

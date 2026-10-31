@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
   import ChangelogDialog from "$lib/components/ChangelogDialog.svelte"
+  import SoundToggle from "$lib/components/SoundToggle.svelte"
   import ThemeToggle from "$lib/components/ThemeToggle.svelte"
   import Button from "$lib/components/ui/Button.svelte"
   import { MAX_PLAYERS, MIN_PLAYERS } from "$lib/game/types"
@@ -96,6 +97,7 @@
         </button>
       {/each}
     </div>
+    <SoundToggle />
     <ThemeToggle />
   </div>
 

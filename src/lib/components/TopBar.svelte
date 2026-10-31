@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ArrowLeft, BookOpen } from "lucide-svelte"
+  import SoundToggle from "$lib/components/SoundToggle.svelte"
   import ThemeToggle from "$lib/components/ThemeToggle.svelte"
   import { m } from "$lib/i18n/messages"
 
@@ -18,6 +19,7 @@
     })}
   </span>
   <div class="actions">
+    <SoundToggle />
     <ThemeToggle />
     <button type="button" class="rules-button" onclick={onrules}>
       <BookOpen size={18} />{m.menuRules()}

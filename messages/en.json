@@ -84,6 +84,8 @@
   "chefHint": "The Chef goes into the oven as this colour, and the next card on it must match.",
   "themeDark": "Dark theme",
   "themeLight": "Light theme",
+  "soundOn": "Turn sound on",
+  "soundOff": "Turn sound off",
   "logEmpty": "Players' moves will appear here",
   "menuOnline": "Play with friends",
   "lobbyTitle": "Play with friends",
