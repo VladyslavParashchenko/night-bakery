@@ -12,7 +12,11 @@
   <div class="head">
     <span class="name">{player.name}</span>
   </div>
-  <div class="backs" aria-label={m.cardsCount({ count: player.hand.length })}>
+  <div
+    class="backs"
+    data-seat={player.id}
+    aria-label={m.cardsCount({ count: player.hand.length })}
+  >
     {#each [...Array(visibleBacks).keys()] as i (i)}
       <span class="back"></span>
     {/each}

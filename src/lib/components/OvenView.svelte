@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Lock } from "lucide-svelte"
   import GameCard from "$lib/components/GameCard.svelte"
+  import { flyIn, type LaunchPoint } from "$lib/components/card-flight"
   import { OVEN_CAPACITY, type Oven } from "$lib/game/types"
   import { m } from "$lib/i18n/messages"
 
@@ -11,6 +12,7 @@
     target = false,
     over = false,
     clickable = false,
+    launch,
     onclick,
   }: {
     oven: Oven
@@ -21,6 +23,7 @@
     over?: boolean
     // Clickable even when not a legal target, so the UI can explain why.
     clickable?: boolean
+    launch?: (cardId: string) => LaunchPoint | null
     onclick?: () => void
   } = $props()
 </script>
@@ -45,15 +48,13 @@
   </header>
 
   <div class="stack">
-    {#if oven.cards.length === 0}
-      <span class="empty">{m.ovenEmpty()}</span>
+    {#each oven.cards as card (card.id)}
+      <div class="stacked" in:flyIn={{ from: () => launch?.(card.id) ?? null }}>
+        <GameCard {card} size="sm" disabled />
+      </div>
     {:else}
-      {#each oven.cards as card (card.id)}
-        <div class="stacked">
-          <GameCard {card} size="sm" disabled />
-        </div>
-      {/each}
-    {/if}
+      <span class="empty">{m.ovenEmpty()}</span>
+    {/each}
   </div>
 
   <div class="slots" aria-hidden="true">
@@ -130,6 +131,9 @@
     display: flex;
     align-items: center;
     min-height: 116px;
+  }
+  .stacked {
+    position: relative;
   }
   .stacked:not(:first-child) {
     margin-left: -44px;

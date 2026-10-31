@@ -1,5 +1,13 @@
 # What's new
 
+## Coming soon
+
+### Added
+
+- Played cards fly into the oven: yours from your hand or wherever you let
+  go of it, and your opponents' from their seat at the table, so their moves
+  are easier to follow.
+
 ## 1.3.0 — 31 October 2026
 
 ### Added

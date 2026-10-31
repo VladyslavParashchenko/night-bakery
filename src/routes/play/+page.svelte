@@ -6,6 +6,11 @@
   import OpponentSeat from "$lib/components/OpponentSeat.svelte"
   import OvenView from "$lib/components/OvenView.svelte"
   import { CardDrag } from "$lib/components/card-drag.svelte"
+  import {
+    recordLaunch,
+    takeLaunch,
+    type LaunchPoint,
+  } from "$lib/components/card-flight"
   import ChefDialog from "$lib/components/ChefDialog.svelte"
   import SpyDialog from "$lib/components/SpyDialog.svelte"
   import GameOverDialog from "$lib/components/GameOverDialog.svelte"
@@ -64,14 +69,43 @@
     return legalOvens(state, game.me, card).length > 0
   }
 
-  function playOn(state: GameState, card: VisibleCard, oven: number) {
+  // The card flies into the oven from `from`.
+  function playOn(
+    state: GameState,
+    card: VisibleCard,
+    oven: number,
+    from: Element | null,
+  ) {
     const error = playError(state, game.me, card, oven)
     if (error) {
       game.showError(error)
       return
     }
+    recordLaunch(card.id, from)
     playSelected(card, oven)
   }
+
+  function handCard(cardId: string) {
+    return document.querySelector(
+      `[data-card="${CSS.escape(cardId)}"] .game-card`,
+    )
+  }
+
+  // Ours fly from where they were played, others' from their seat.
+  function launchPoint(oven: number, cardId: string): LaunchPoint | null {
+    const own = takeLaunch(cardId)
+    if (own || !game.state) return own
+    const play = game.state.log.findLast(
+      (entry) => "oven" in entry && entry.oven === oven,
+    )
+    if (!play || !("player" in play) || play.player === game.me) return null
+    const seat = document.querySelector(`[data-seat="${play.player}"]`)
+    if (!seat) return null
+    const { left, top, height } = seat.getBoundingClientRect()
+    return { left, top, width: height / 1.42 }
+  }
+
+  let ghost = $state<HTMLElement>()
 
   // Restored when the card is dropped outside the ovens.
   let selectedBeforeDrag: string | null = null
@@ -89,7 +123,7 @@
         return
       }
       selectedId = null
-      if (game.state) playOn(game.state, card, oven)
+      if (game.state) playOn(game.state, card, oven, ghost ?? null)
     },
   })
   onDestroy(() => drag.cancel())
@@ -184,11 +218,12 @@
             ? null
             : state.players[oven.lockedBy].name}
           target={targets.includes(index)}
+          launch={(cardId) => launchPoint(index, cardId)}
           over={drag.oven === index}
           clickable={selected !== null}
           onclick={() => {
             if (!selected) return
-            playOn(state, selected, index)
+            playOn(state, selected, index, handCard(selected.id))
             selectedId = null
           }}
         />
@@ -215,6 +250,7 @@
           <div
             class="hand-card"
             role="presentation"
+            data-card={card.id}
             class:dragging={drag.card?.id === card.id}
             onpointerdown={(event) => drag.press(event, card)}
           >
@@ -267,6 +303,7 @@
 
   {#if drag.card}
     <div
+      bind:this={ghost}
       class="drag-ghost"
       style:transform={`translate(${drag.x}px, ${drag.y}px) rotate(-4deg)`}
       aria-hidden="true"
