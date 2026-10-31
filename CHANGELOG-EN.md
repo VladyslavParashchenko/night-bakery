@@ -1,5 +1,12 @@
 # What's new
 
+## 1.2.0 — 31 October 2026
+
+### Changed
+
+- You win the moment you run out of cards instead of at the end of your
+  turn. The winning card can no longer be called out with "Scorched!".
+
 ## 1.1.0 — 31 October 2026
 
 ### Added
