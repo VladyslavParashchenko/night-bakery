@@ -108,5 +108,7 @@
   "roomProblem_full": "Кімната вже повна.",
   "roomProblem_started": "Гра в цій кімнаті вже почалась.",
   "roomProblem_hostLeft": "Хост вийшов із кімнати.",
-  "roomProblem_network": "Не вдалося з'єднатися. Спробуйте ще раз."
+  "roomProblem_network": "Не вдалося з'єднатися. Спробуйте ще раз.",
+  "changelogTitle": "Що нового",
+  "changelogOpen": "Версія {version}: що нового"
 }

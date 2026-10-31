@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation"
+  import ChangelogDialog from "$lib/components/ChangelogDialog.svelte"
   import ThemeToggle from "$lib/components/ThemeToggle.svelte"
   import Button from "$lib/components/ui/Button.svelte"
   import { MAX_PLAYERS, MIN_PLAYERS } from "$lib/game/types"
@@ -8,6 +9,7 @@
   import { room } from "$lib/net/room.svelte"
   import { game } from "$lib/stores/game.svelte"
   import { loadName, saveName } from "$lib/stores/player-name"
+  import { APP_VERSION } from "$lib/version"
 
   // Coming back to the menu ends any game in progress.
   game.quit()
@@ -16,6 +18,7 @@
 
   let name = $state(loadName())
   let bots = $state(2)
+  let changelogOpen = $state(false)
 
   function playerName() {
     const playerName = name.trim() || m.menuDefaultName()
@@ -95,7 +98,18 @@
     </div>
     <ThemeToggle />
   </div>
+
+  <button
+    type="button"
+    class="version"
+    aria-label={m.changelogOpen({ version: APP_VERSION })}
+    onclick={() => (changelogOpen = true)}
+  >
+    v{APP_VERSION}
+  </button>
 </main>
+
+<ChangelogDialog open={changelogOpen} onclose={() => (changelogOpen = false)} />
 
 <style>
   .menu {
@@ -162,6 +176,20 @@
     color: var(--color-oven-text);
     font-weight: 700;
     text-align: center;
+  }
+  .version {
+    padding: 4px 10px;
+    color: var(--color-oven-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .version:hover {
+    color: var(--color-oven-text);
+    text-decoration: underline;
   }
   .settings {
     display: flex;

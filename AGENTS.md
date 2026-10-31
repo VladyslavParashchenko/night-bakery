@@ -2,7 +2,9 @@
 
 Full game rules live in `RULES-UA.md` (Ukrainian) and `RULES-EN.md` (English).
 `RulesList.svelte` renders them as-is on the rules page and in the in-game
-dialog, so editing these files updates the game.
+dialog, so editing these files updates the game. `CHANGELOG.md` works the
+same way: the version under the menu (from `package.json`) opens it. Add an
+entry there for every player-facing change.
 
 ## Stack
 
