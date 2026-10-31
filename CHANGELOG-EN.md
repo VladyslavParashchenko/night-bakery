@@ -1,5 +1,17 @@
 # What's new
 
+## 1.4.1 — 31 October 2026
+
+### Changed
+
+- The menu button for online play now has a simple icon.
+- New game icon featuring the night baker, ovens, and all four suits.
+
+### Fixed
+
+- Playing with friends no longer hangs on "Connecting…" when the online
+  part of the game fails to load; an error is shown instead.
+
 ## 1.4.0 — 31 October 2026
 
 ### Added
@@ -7,15 +19,6 @@
 - Sounds for a card landing in an oven, drawing, a burnt oven, "Scorched!",
   your turn, winning and losing. Turn them off with the speaker button in the
   menu or at the table.
-
-### Changed
-
-- The menu button for online play now has a simple icon.
-
-### Fixed
-
-- Playing with friends no longer hangs on "Connecting…" when the online
-  part of the game fails to load; an error is shown instead.
 
 ## 1.3.1 — 31 October 2026
 
