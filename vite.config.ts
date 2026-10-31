@@ -45,6 +45,12 @@ export default defineConfig({
             type: "image/png",
             purpose: "any",
           },
+          {
+            src: "/icons/night-bakery-maskable.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
+          },
         ],
       },
       workbox: {

@@ -1,5 +1,12 @@
 # What's new
 
+## Coming soon
+
+### Changed
+
+- On Android, the installed game's icon now fills the whole shape instead of
+  sitting small inside a white circle.
+
 ## 1.4.1 — 31 October 2026
 
 ### Changed
