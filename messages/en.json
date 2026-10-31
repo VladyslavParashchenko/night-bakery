@@ -34,7 +34,7 @@
   "turnProgress": "Played: {played}/3",
   "actionEndTurn": "End turn",
   "actionMenu": "Menu",
-  "hintSelectCard": "Pick a card, then an oven",
+  "hintSelectCard": "Drag a card onto an oven, or pick a card, then an oven",
   "hintSelectOven": "Now pick an oven",
   "hintCarousel": "Carousel! Pick a card to pass to your left",
   "hintCarouselWait": "Waiting for the others to choose…",

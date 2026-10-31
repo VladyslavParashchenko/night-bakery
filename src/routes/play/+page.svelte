@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onDestroy } from "svelte"
   import { goto } from "$app/navigation"
   import GameCard from "$lib/components/GameCard.svelte"
   import GameLog from "$lib/components/GameLog.svelte"
   import OpponentSeat from "$lib/components/OpponentSeat.svelte"
   import OvenView from "$lib/components/OvenView.svelte"
+  import { CardDrag } from "$lib/components/card-drag.svelte"
   import ChefDialog from "$lib/components/ChefDialog.svelte"
   import SpyDialog from "$lib/components/SpyDialog.svelte"
   import GameOverDialog from "$lib/components/GameOverDialog.svelte"
@@ -54,9 +56,43 @@
     return card ? legalOvens(state, game.me, card) : []
   }
 
+  function isMyTurn(state: GameState) {
+    return !state.pending && state.current === game.me
+  }
+
   function isPlayable(state: GameState, card: Card) {
     return legalOvens(state, game.me, card).length > 0
   }
+
+  function playOn(state: GameState, card: VisibleCard, oven: number) {
+    const error = playError(state, game.me, card, oven)
+    if (error) {
+      game.showError(error)
+      return
+    }
+    playSelected(card, oven)
+  }
+
+  // Restored when the card is dropped outside the ovens.
+  let selectedBeforeDrag: string | null = null
+  const drag = new CardDrag({
+    onstart: (card) => {
+      const state = game.state
+      if (!state || !isMyTurn(state) || !isPlayable(state, card)) return false
+      selectedBeforeDrag = selectedId
+      selectedId = card.id
+      return true
+    },
+    ondrop: (card, oven) => {
+      if (oven === null) {
+        selectedId = selectedBeforeDrag
+        return
+      }
+      selectedId = null
+      if (game.state) playOn(game.state, card, oven)
+    },
+  })
+  onDestroy(() => drag.cancel())
 
   function playSelected(card: VisibleCard, oven: number) {
     if (card.type === "number") {
@@ -86,7 +122,7 @@
   {@const me = state.players[game.me]}
   {@const hand = sortHand(me.hand)}
   {@const pending = state.pending}
-  {@const myTurn = !pending && state.current === game.me}
+  {@const myTurn = isMyTurn(state)}
   {@const carouselPick =
     pending?.kind === "carousel" &&
     pending.choices[game.me] === undefined &&
@@ -148,15 +184,11 @@
             ? null
             : state.players[oven.lockedBy].name}
           target={targets.includes(index)}
+          over={drag.oven === index}
           clickable={selected !== null}
           onclick={() => {
             if (!selected) return
-            const error = playError(state, game.me, selected, index)
-            if (error) {
-              game.showError(error)
-              return
-            }
-            playSelected(selected, index)
+            playOn(state, selected, index)
             selectedId = null
           }}
         />
@@ -180,31 +212,38 @@
 
       <div class="hand">
         {#each hand as card (card.id)}
-          <GameCard
-            {card}
-            selected={selected?.id === card.id}
-            dimmed={myTurn && !isPlayable(state, card)}
-            disabled={!myTurn && !carouselPick}
-            onclick={() => {
-              if (carouselPick) {
-                game.dispatch({
-                  type: "submitCarousel",
-                  player: game.me,
-                  cardId: card.id,
-                })
-                return
-              }
-              if (!myTurn) return
-              if (card.type === "cook") {
-                const error = cookPlayError(state, game.me, card)
-                if (error) {
-                  game.showError(error)
+          <div
+            class="hand-card"
+            role="presentation"
+            class:dragging={drag.card?.id === card.id}
+            onpointerdown={(event) => drag.press(event, card)}
+          >
+            <GameCard
+              {card}
+              selected={selected?.id === card.id}
+              dimmed={myTurn && !isPlayable(state, card)}
+              disabled={!myTurn && !carouselPick}
+              onclick={() => {
+                if (carouselPick) {
+                  game.dispatch({
+                    type: "submitCarousel",
+                    player: game.me,
+                    cardId: card.id,
+                  })
                   return
                 }
-              }
-              selectedId = selectedId === card.id ? null : card.id
-            }}
-          />
+                if (!myTurn) return
+                if (card.type === "cook") {
+                  const error = cookPlayError(state, game.me, card)
+                  if (error) {
+                    game.showError(error)
+                    return
+                  }
+                }
+                selectedId = selectedId === card.id ? null : card.id
+              }}
+            />
+          </div>
         {/each}
       </div>
 
@@ -225,6 +264,16 @@
 
     <GameLog {state} />
   </main>
+
+  {#if drag.card}
+    <div
+      class="drag-ghost"
+      style:transform={`translate(${drag.x}px, ${drag.y}px) rotate(-4deg)`}
+      aria-hidden="true"
+    >
+      <GameCard card={drag.card} />
+    </div>
+  {/if}
 
   <Toast
     message={game.error ? errorMessage(game.error) : null}
@@ -350,6 +399,17 @@
     flex-wrap: wrap;
     gap: 12px;
     padding-top: 18px;
+  }
+  .hand-card.dragging {
+    opacity: 0.3;
+  }
+  .drag-ghost {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    pointer-events: none;
+    filter: drop-shadow(0 16px 24px rgb(58 31 15 / 0.35));
   }
   .actions {
     display: flex;

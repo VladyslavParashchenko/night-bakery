@@ -83,6 +83,8 @@
     border: 2px solid rgb(58 31 15 / 0.15);
     border-radius: 14px;
     box-shadow: 0 6px 14px rgb(58 31 15 / 0.2);
+    user-select: none;
+    -webkit-touch-callout: none;
     transition:
       transform 0.15s ease,
       box-shadow 0.15s ease,

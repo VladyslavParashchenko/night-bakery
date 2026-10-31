@@ -9,6 +9,7 @@
     index,
     lockedByName,
     target = false,
+    over = false,
     clickable = false,
     onclick,
   }: {
@@ -16,6 +17,8 @@
     index: number
     lockedByName: string | null
     target?: boolean
+    // A dragged card is over this oven.
+    over?: boolean
     // Clickable even when not a legal target, so the UI can explain why.
     clickable?: boolean
     onclick?: () => void
@@ -26,6 +29,8 @@
   type="button"
   class="oven"
   class:target
+  class:over
+  data-oven={index}
   disabled={!clickable}
   aria-label={m.ovenLabel({ number: index + 1 })}
   {onclick}
@@ -89,6 +94,14 @@
   }
   .oven.target:hover {
     transform: translateY(-2px);
+  }
+  .oven.over {
+    border-color: var(--color-oven-fire);
+  }
+  .oven.target.over {
+    border-color: var(--color-oven-accent);
+    box-shadow: 0 0 0 8px rgb(255 216 3 / 0.6);
+    transform: scale(1.02);
   }
   header {
     display: flex;

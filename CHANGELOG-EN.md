@@ -1,5 +1,13 @@
 # What's new
 
+## Coming soon
+
+### Added
+
+- Drag a card from your hand straight onto an oven. On a touch screen,
+  hold the card for a moment first. Picking a card and then an oven still
+  works.
+
 ## 1.2.0 — 31 October 2026
 
 ### Changed

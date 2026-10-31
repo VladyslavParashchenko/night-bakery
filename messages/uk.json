@@ -34,7 +34,7 @@
   "turnProgress": "Зіграно: {played}/3",
   "actionEndTurn": "Завершити хід",
   "actionMenu": "Меню",
-  "hintSelectCard": "Оберіть карту, а потім піч",
+  "hintSelectCard": "Перетягніть карту на піч або оберіть карту, а потім піч",
   "hintSelectOven": "Тепер оберіть піч",
   "hintCarousel": "Карусель! Оберіть карту, яку передасте сусідові ліворуч",
   "hintCarouselWait": "Чекаємо, поки інші оберуть карти…",
