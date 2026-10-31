@@ -40,35 +40,35 @@
 
 <style>
   h2 {
-    margin: 0 0 12px;
+    margin: 0 0 0.75rem;
   }
   .hint {
-    margin: 0 0 16px;
+    margin: 0 0 1rem;
     color: var(--color-oven-muted);
   }
   .colours {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 0.625rem;
   }
   .colour {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-height: 64px;
+    gap: 0.5rem;
+    min-height: 4rem;
     color: var(--color-ink);
     font-weight: 800;
-    border: 2px solid rgb(58 31 15 / 0.15);
-    border-radius: 14px;
+    border: 0.125rem solid rgb(58 31 15 / 0.15);
+    border-radius: 0.875rem;
     cursor: pointer;
   }
   .colour:hover {
     border-color: var(--color-ink);
   }
   .colour:focus-visible {
-    outline: 2px solid var(--color-oven-text);
-    outline-offset: 2px;
+    outline: 0.125rem solid var(--color-oven-text);
+    outline-offset: 0.125rem;
   }
   .emoji {
     font-size: 1.6rem;
@@ -89,6 +89,6 @@
   .actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: 20px;
+    margin-top: 1.25rem;
   }
 </style>

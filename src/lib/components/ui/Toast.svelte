@@ -31,7 +31,7 @@
         role="status"
         transition:fly={{ y: 24, duration: 180 }}
       >
-        <CircleAlert size={20} />
+        <CircleAlert size="1.25rem" />
         <span>{message}</span>
       </div>
     {/if}
@@ -42,9 +42,9 @@
   .toast-region {
     position: fixed;
     z-index: 1100;
-    right: 16px;
-    bottom: 24px;
-    left: 16px;
+    right: 1rem;
+    bottom: 1.5rem;
+    left: 1rem;
     display: flex;
     justify-content: center;
     pointer-events: none;
@@ -52,14 +52,14 @@
   .toast {
     display: flex;
     align-items: center;
-    gap: 10px;
-    max-width: 480px;
-    padding: 12px 18px;
+    gap: 0.625rem;
+    max-width: 30rem;
+    padding: 0.75rem 1.125rem;
     color: var(--color-oven-bg);
     font-weight: 700;
     background: var(--color-oven-text);
-    border-radius: 14px;
-    box-shadow: 0 12px 32px rgb(58 31 15 / 0.3);
+    border-radius: 0.875rem;
+    box-shadow: 0 0.75rem 2rem rgb(58 31 15 / 0.3);
   }
   .toast :global(svg) {
     flex-shrink: 0;

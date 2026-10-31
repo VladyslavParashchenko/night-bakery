@@ -41,25 +41,25 @@
 
 <style>
   h2 {
-    margin: 0 0 12px;
+    margin: 0 0 0.75rem;
   }
   .hint {
     margin: 0;
     color: var(--color-oven-muted);
   }
   .label {
-    margin: 16px 0 8px;
+    margin: 1rem 0 0.5rem;
     color: var(--color-oven-muted);
     font-weight: 700;
   }
   .opponents {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 0.5rem;
   }
   .actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: 24px;
+    margin-top: 1.5rem;
   }
 </style>

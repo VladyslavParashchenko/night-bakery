@@ -55,7 +55,7 @@
 
 <main class="lobby">
   <button type="button" class="back" onclick={back}>
-    <ArrowLeft size={18} />{m.backToMenu()}
+    <ArrowLeft size="1.125rem" />{m.backToMenu()}
   </button>
   <h1>{m.lobbyTitle()}</h1>
 
@@ -166,16 +166,16 @@
   .lobby {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    max-width: 440px;
+    gap: 1rem;
+    max-width: 27.5rem;
     margin: 0 auto;
-    padding: 32px 16px 48px;
+    padding: 2rem 1rem 3rem;
   }
   .back {
     display: inline-flex;
     align-items: center;
     align-self: flex-start;
-    gap: 6px;
+    gap: 0.375rem;
     padding: 0;
     color: var(--color-oven-text);
     font: inherit;
@@ -191,11 +191,11 @@
   .panel {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 24px;
+    gap: 0.875rem;
+    padding: 1.5rem;
     background: var(--color-oven-surface);
     border: 1px solid var(--color-oven-border);
-    border-radius: 24px;
+    border-radius: 1.5rem;
   }
   .muted {
     margin: 0;
@@ -203,40 +203,40 @@
   }
   .problem {
     margin: 0;
-    padding: 12px 16px;
+    padding: 0.75rem 1rem;
     color: var(--color-oven-text);
     background: var(--color-oven-surface-raised);
     border: 1px solid var(--color-oven-accent);
-    border-radius: 12px;
+    border-radius: 0.75rem;
     font-weight: 700;
   }
   .or {
-    margin: 4px 0;
+    margin: 0.25rem 0;
     color: var(--color-oven-muted);
     text-align: center;
   }
   .join {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0.625rem;
   }
   .field {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
     font-weight: 700;
   }
   input {
     min-width: 0;
-    min-height: 44px;
-    padding: 0 14px;
+    min-height: 2.75rem;
+    padding: 0 0.875rem;
     color: var(--color-oven-text);
     background: var(--color-oven-bg);
     border: 1px solid var(--color-oven-border);
-    border-radius: 12px;
+    border-radius: 0.75rem;
   }
   input:focus {
-    outline: 2px solid var(--color-oven-accent);
+    outline: 0.125rem solid var(--color-oven-accent);
   }
   .join input {
     font-size: 1.3rem;
@@ -252,7 +252,7 @@
   }
   .link {
     display: flex;
-    gap: 8px;
+    gap: 0.5rem;
   }
   .link input {
     flex: 1;
@@ -260,7 +260,7 @@
   .players {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.375rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -269,22 +269,22 @@
   .players li {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
+    gap: 0.5rem;
+    padding: 0.625rem 0.875rem;
     background: var(--color-oven-bg);
-    border-radius: 12px;
+    border-radius: 0.75rem;
   }
   .badge {
-    padding: 2px 8px;
+    padding: 0.125rem 0.5rem;
     color: var(--color-ink);
     font-size: 0.8rem;
     font-weight: 700;
     background: var(--color-oven-accent);
-    border-radius: 999px;
+    border-radius: 62.4375rem;
   }
   .choices {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    gap: 0.5rem;
   }
 </style>

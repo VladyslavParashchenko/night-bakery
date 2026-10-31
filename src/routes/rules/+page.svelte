@@ -12,20 +12,20 @@
 
 <style>
   .rules {
-    max-width: 860px;
+    max-width: 53.75rem;
     margin: 0 auto;
-    padding: 32px 16px 48px;
+    padding: 2rem 1rem 3rem;
   }
   .back {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 0.375rem;
     color: var(--color-oven-text);
     font-weight: 700;
     text-decoration: none;
   }
   h1 {
-    margin: 16px 0;
+    margin: 1rem 0;
     color: var(--color-oven-text);
   }
 </style>

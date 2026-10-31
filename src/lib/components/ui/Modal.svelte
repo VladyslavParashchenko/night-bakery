@@ -52,24 +52,24 @@
     z-index: 1000;
     inset: 0;
     display: grid;
-    padding: 16px;
+    padding: 1rem;
     place-items: center;
     background: rgb(58 31 15 / 0.45);
   }
   .ui-modal {
-    width: min(100%, 520px);
-    max-height: calc(100dvh - 32px);
+    width: min(100%, 32.5rem);
+    max-height: calc(100dvh - 2rem);
     overflow: auto;
     overscroll-behavior: contain;
-    padding: 24px;
+    padding: 1.5rem;
     color: var(--color-oven-text);
     background: var(--color-oven-surface);
     border: 1px solid var(--color-oven-border);
-    border-radius: 24px;
-    box-shadow: 0 24px 64px rgb(58 31 15 / 0.25);
+    border-radius: 1.5rem;
+    box-shadow: 0 1.5rem 4rem rgb(58 31 15 / 0.25);
   }
   .ui-modal.wide {
-    width: min(100%, 860px);
+    width: min(100%, 53.75rem);
   }
   .ui-modal.split {
     display: flex;
@@ -79,7 +79,7 @@
   }
   .ui-modal-header {
     flex-shrink: 0;
-    padding: 16px 24px;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--color-oven-border);
   }
   .ui-modal-body {
@@ -87,6 +87,6 @@
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 20px 24px 24px;
+    padding: 1.25rem 1.5rem 1.5rem;
   }
 </style>

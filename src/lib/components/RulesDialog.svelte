@@ -17,7 +17,7 @@
         aria-label={m.close()}
         onclick={onclose}
       >
-        <X size={22} />
+        <X size="1.375rem" />
       </button>
     </div>
   {/snippet}
@@ -37,12 +37,12 @@
   .close {
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     color: var(--color-oven-muted);
     background: transparent;
     border: none;
-    border-radius: 999px;
+    border-radius: 62.4375rem;
     cursor: pointer;
   }
   .close:hover {

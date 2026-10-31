@@ -35,7 +35,7 @@
     grid-template-areas: "back piles actions";
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 8px 12px;
+    gap: 0.5rem 0.75rem;
     color: var(--color-oven-muted);
     font-size: 1rem;
   }
@@ -44,7 +44,7 @@
     justify-self: start;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.25rem;
     color: var(--color-oven-text);
     font-weight: 700;
     text-decoration: none;
@@ -57,7 +57,7 @@
     grid-area: actions;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
   }
   @media (max-width: 600px) {
     .topbar {
@@ -73,14 +73,14 @@
   .rules-button {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    min-height: 40px;
-    padding: 0 14px;
+    gap: 0.375rem;
+    min-height: 2.5rem;
+    padding: 0 0.875rem;
     color: var(--color-oven-text);
     font-weight: 700;
     background: var(--color-oven-surface-raised);
     border: 1px solid var(--color-oven-border);
-    border-radius: 999px;
+    border-radius: 62.4375rem;
     cursor: pointer;
   }
   .rules-button:hover {

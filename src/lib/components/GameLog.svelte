@@ -48,13 +48,13 @@
 
 <style>
   .log {
-    padding: 16px 18px;
+    padding: 1rem 1.125rem;
     background: var(--color-oven-surface);
     border: 1px solid var(--color-oven-border);
-    border-radius: 16px;
+    border-radius: 1rem;
   }
   h2 {
-    margin: 0 0 10px;
+    margin: 0 0 0.625rem;
     font-size: 0.9rem;
     color: var(--color-oven-muted);
     text-transform: uppercase;
@@ -67,8 +67,8 @@
   ol {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    max-height: 320px;
+    gap: 0.25rem;
+    max-height: 20rem;
     margin: 0;
     padding: 0;
     overflow-y: auto;
@@ -78,11 +78,11 @@
   li {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 10px;
+    gap: 0.625rem;
+    padding: 0.375rem 0.625rem;
     color: var(--color-oven-muted);
-    border-left: 3px solid transparent;
-    border-radius: 10px;
+    border-left: 0.1875rem solid transparent;
+    border-radius: 0.625rem;
   }
   li.mine {
     border-left-color: var(--color-oven-accent);
@@ -103,12 +103,12 @@
     display: grid;
     flex-shrink: 0;
     place-items: center;
-    width: 28px;
-    height: 36px;
+    width: 1.75rem;
+    height: 2.25rem;
     color: var(--color-ink);
     font-size: 0.85rem;
     font-weight: 800;
-    border-radius: 6px;
+    border-radius: 0.375rem;
   }
   .chip.icon {
     font-size: 1.1rem;

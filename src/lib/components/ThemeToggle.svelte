@@ -16,9 +16,9 @@
   onclick={() => theme.toggle()}
 >
   {#if theme.current === "dark"}
-    <Sun size={18} />
+    <Sun size="1.125rem" />
   {:else}
-    <Moon size={18} />
+    <Moon size="1.125rem" />
   {/if}
 </button>
 
@@ -26,19 +26,19 @@
   .theme-toggle {
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     color: var(--color-oven-text);
     background: var(--color-oven-surface-raised);
     border: 1px solid var(--color-oven-border);
-    border-radius: 999px;
+    border-radius: 62.4375rem;
     cursor: pointer;
   }
   .theme-toggle:hover {
     border-color: var(--color-oven-accent);
   }
   .theme-toggle:focus-visible {
-    outline: 2px solid var(--color-oven-accent);
-    outline-offset: 2px;
+    outline: 0.125rem solid var(--color-oven-accent);
+    outline-offset: 0.125rem;
   }
 </style>

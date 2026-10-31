@@ -34,11 +34,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-height: 52px;
-    padding: 0 22px;
+    gap: 0.5rem;
+    min-height: 3.25rem;
+    padding: 0 1.375rem;
     border: 1px solid transparent;
-    border-radius: 12px;
+    border-radius: 0.75rem;
     font: inherit;
     font-size: 1.05rem;
     font-weight: 700;
@@ -66,13 +66,13 @@
   }
   .ui-button.large {
     width: 100%;
-    min-height: 60px;
-    border-radius: 16px;
+    min-height: 3.75rem;
+    border-radius: 1rem;
     font-size: 1.15rem;
   }
   @media (max-width: 600px) {
     .ui-button {
-      padding: 0 12px;
+      padding: 0 0.75rem;
       white-space: nowrap;
     }
   }
@@ -83,7 +83,7 @@
     transform: scale(0.98);
   }
   .ui-button:focus-visible {
-    outline: 2px solid var(--color-oven-accent);
-    outline-offset: 2px;
+    outline: 0.125rem solid var(--color-oven-accent);
+    outline-offset: 0.125rem;
   }
 </style>

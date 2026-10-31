@@ -30,11 +30,11 @@
   .scorch {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 14px 16px;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
     background: rgb(242 95 76 / 0.15);
-    border: 2px solid var(--color-oven-fire);
-    border-radius: 16px;
+    border: 0.125rem solid var(--color-oven-fire);
+    border-radius: 1rem;
     animation: pulse 0.6s ease-in-out infinite alternate;
   }
   strong {
@@ -44,9 +44,9 @@
     margin: 0;
   }
   .timer {
-    height: 5px;
+    height: 0.3125rem;
     background: var(--color-oven-fire);
-    border-radius: 999px;
+    border-radius: 62.4375rem;
     transform-origin: left;
     animation: shrink var(--window) linear forwards;
   }
@@ -57,7 +57,7 @@
   }
   @keyframes pulse {
     to {
-      box-shadow: 0 0 24px rgb(242 95 76 / 0.45);
+      box-shadow: 0 0 1.5rem rgb(242 95 76 / 0.45);
     }
   }
 </style>

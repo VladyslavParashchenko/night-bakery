@@ -28,22 +28,22 @@
   .seat {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0.625rem;
     min-width: 0;
-    padding: 14px 16px;
+    padding: 0.875rem 1rem;
     background: var(--color-oven-surface);
-    border: 2px solid var(--color-oven-border);
-    border-radius: 16px;
+    border: 0.125rem solid var(--color-oven-border);
+    border-radius: 1rem;
     transition: border-color 0.15s ease;
   }
   .seat.active {
     border-color: var(--color-oven-accent);
-    box-shadow: 0 0 0 3px rgb(255 216 3 / 0.35);
+    box-shadow: 0 0 0 0.1875rem rgb(255 216 3 / 0.35);
   }
   .head {
     display: flex;
     justify-content: space-between;
-    gap: 8px;
+    gap: 0.5rem;
     font-size: 1rem;
   }
   .name {
@@ -57,24 +57,24 @@
     align-items: center;
   }
   .back {
-    width: 30px;
-    height: 44px;
+    width: 1.875rem;
+    height: 2.75rem;
     background: var(--color-ink);
-    border: 1.5px solid var(--color-oven-accent);
-    border-radius: 5px;
+    border: 0.0938rem solid var(--color-oven-accent);
+    border-radius: 0.3125rem;
   }
   .back:not(:first-child) {
-    margin-left: -18px;
+    margin-left: -1.125rem;
   }
   @media (max-width: 600px) {
     .head {
       flex-direction: column;
-      gap: 2px;
+      gap: 0.125rem;
       font-size: 0.9rem;
     }
   }
   .count {
-    margin-left: 12px;
+    margin-left: 0.75rem;
     font-size: 1.25rem;
     font-weight: 800;
   }

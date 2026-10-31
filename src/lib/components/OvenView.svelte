@@ -72,15 +72,15 @@
   .oven {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 0.875rem;
     width: 100%;
     min-width: 0;
-    padding: 16px;
+    padding: 1rem;
     color: inherit;
     text-align: left;
     background: var(--color-oven-surface);
-    border: 2px solid var(--color-oven-border);
-    border-radius: 18px;
+    border: 0.125rem solid var(--color-oven-border);
+    border-radius: 1.125rem;
     transition:
       border-color 0.15s ease,
       transform 0.15s ease;
@@ -91,17 +91,17 @@
   .oven.target {
     cursor: pointer;
     border-color: var(--color-oven-accent);
-    box-shadow: 0 0 0 4px rgb(255 216 3 / 0.45);
+    box-shadow: 0 0 0 0.25rem rgb(255 216 3 / 0.45);
   }
   .oven.target:hover {
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
   }
   .oven.over {
     border-color: var(--color-oven-fire);
   }
   .oven.target.over {
     border-color: var(--color-oven-accent);
-    box-shadow: 0 0 0 8px rgb(255 216 3 / 0.6);
+    box-shadow: 0 0 0 0.5rem rgb(255 216 3 / 0.6);
     transform: scale(1.02);
   }
   header {
@@ -109,7 +109,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
+    gap: 0.375rem;
   }
   .title {
     font-size: 1.15rem;
@@ -118,25 +118,25 @@
   .lock {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--color-ink);
     background: var(--color-oven-accent);
-    border-radius: 999px;
+    border-radius: 62.4375rem;
   }
   .stack {
     position: relative;
     display: flex;
     align-items: center;
-    min-height: 116px;
+    min-height: 7.25rem;
   }
   .stacked {
     position: relative;
   }
   .stacked:not(:first-child) {
-    margin-left: -44px;
+    margin-left: -2.75rem;
   }
   .empty {
     width: 100%;
@@ -146,36 +146,36 @@
   }
   @media (max-width: 600px) {
     .oven {
-      gap: 10px;
-      padding: 10px;
-      border-radius: 14px;
+      gap: 0.625rem;
+      padding: 0.625rem;
+      border-radius: 0.875rem;
     }
     .title {
       font-size: 0.95rem;
     }
     .lock {
-      padding: 2px 6px;
+      padding: 0.125rem 0.375rem;
       font-size: 0.7rem;
     }
     .stack {
-      min-height: 88px;
+      min-height: 5.5rem;
     }
     .stacked:not(:first-child) {
-      margin-left: -52px;
+      margin-left: -3.25rem;
     }
     .slots {
-      gap: 3px;
+      gap: 0.1875rem;
     }
   }
   .slots {
     display: flex;
-    gap: 6px;
+    gap: 0.375rem;
   }
   .slot {
     flex: 1;
-    height: 8px;
+    height: 0.5rem;
     background: var(--color-oven-border);
-    border-radius: 999px;
+    border-radius: 62.4375rem;
   }
   .slot.filled {
     background: var(--color-oven-fire);

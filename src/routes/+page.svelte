@@ -125,22 +125,28 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 28px;
-    max-width: 440px;
+    gap: 1.75rem;
+    max-width: 27.5rem;
     margin: 0 auto;
-    padding: 48px 16px;
+    padding: 3rem 1rem;
   }
   .hero {
     text-align: center;
   }
   .logo {
     display: block;
-    width: min(100%, 320px);
+    width: min(100%, 20rem);
     height: auto;
     margin: 0 auto;
   }
+  /* The desktop UI scales up, so cap the logo by height to fit the menu. */
+  @media (min-width: 1280px) {
+    .logo {
+      width: min(20rem, 24dvh);
+    }
+  }
   h1 {
-    margin: 8px 0;
+    margin: 0.5rem 0;
     font-size: 2.4rem;
     font-weight: 800;
     color: var(--color-oven-text);
@@ -152,34 +158,34 @@
   .panel {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 1.125rem;
     width: 100%;
-    padding: 24px;
+    padding: 1.5rem;
     background: var(--color-oven-surface);
     border: 1px solid var(--color-oven-border);
-    border-radius: 24px;
+    border-radius: 1.5rem;
   }
   .field {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
     font-weight: 700;
   }
   input {
-    min-height: 44px;
-    padding: 0 14px;
+    min-height: 2.75rem;
+    padding: 0 0.875rem;
     color: var(--color-oven-text);
     background: var(--color-oven-bg);
     border: 1px solid var(--color-oven-border);
-    border-radius: 12px;
+    border-radius: 0.75rem;
   }
   input:focus {
-    outline: 2px solid var(--color-oven-accent);
+    outline: 0.125rem solid var(--color-oven-accent);
   }
   .choices {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: 0.5rem;
   }
   .rules-link {
     color: var(--color-oven-text);
@@ -196,13 +202,13 @@
     stroke-linejoin: round;
   }
   .version {
-    padding: 4px 10px;
+    padding: 0.25rem 0.625rem;
     color: var(--color-oven-muted);
     font: inherit;
     font-size: 0.85rem;
     background: transparent;
     border: none;
-    border-radius: 999px;
+    border-radius: 62.4375rem;
     cursor: pointer;
   }
   .version:hover {
@@ -212,18 +218,18 @@
   .settings {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
   }
   .lang {
     display: flex;
-    gap: 6px;
+    gap: 0.375rem;
   }
   .lang button {
-    padding: 6px 12px;
+    padding: 0.375rem 0.75rem;
     color: var(--color-oven-muted);
     background: transparent;
     border: 1px solid var(--color-oven-border);
-    border-radius: 999px;
+    border-radius: 62.4375rem;
     cursor: pointer;
   }
   .lang button.active {

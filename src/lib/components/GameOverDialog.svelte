@@ -51,7 +51,7 @@
   .result {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0.75rem;
     text-align: center;
   }
   .trophy {
@@ -67,19 +67,19 @@
   .standings {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin: 8px 0;
+    gap: 0.375rem;
+    margin: 0.5rem 0;
     padding: 0;
     list-style: none;
   }
   .standings li {
     display: flex;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: 0.5rem 0.75rem;
     background: var(--color-oven-bg);
-    border-radius: 10px;
+    border-radius: 0.625rem;
   }
   .standings li.winner {
-    outline: 2px solid var(--color-oven-accent);
+    outline: 0.125rem solid var(--color-oven-accent);
   }
 </style>

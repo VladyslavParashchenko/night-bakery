@@ -393,21 +393,21 @@
   .table {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
-    max-width: 1280px;
+    gap: 1.125rem;
+    max-width: 80rem;
     margin: 0 auto;
-    padding: 16px 16px 40px;
+    padding: 1rem 1rem 2.5rem;
   }
   .opponents {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(10.625rem, 1fr));
+    gap: 0.75rem;
   }
   .status {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    min-height: 32px;
+    gap: 0.5rem;
+    min-height: 2rem;
   }
   .hint {
     margin: 0;
@@ -420,17 +420,17 @@
   }
   .ovens {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(16.25rem, 1fr));
+    gap: 1rem;
   }
   .me {
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    padding: 18px;
+    gap: 1.125rem;
+    padding: 1.125rem;
     background: var(--color-oven-surface);
-    border: 2px solid var(--color-oven-border);
-    border-radius: 20px;
+    border: 0.125rem solid var(--color-oven-border);
+    border-radius: 1.25rem;
   }
   .me.active {
     border-color: var(--color-oven-accent);
@@ -439,10 +439,10 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 8px;
+    gap: 0.5rem;
   }
   .me-head strong {
-    margin-right: 10px;
+    margin-right: 0.625rem;
     font-size: 1.25rem;
   }
   .muted {
@@ -452,8 +452,8 @@
   .hand {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    padding-top: 18px;
+    gap: 0.75rem;
+    padding-top: 1.125rem;
   }
   .hand-card.dragging {
     opacity: 0.3;
@@ -464,25 +464,37 @@
     left: 0;
     z-index: 50;
     pointer-events: none;
-    filter: drop-shadow(0 16px 24px rgb(58 31 15 / 0.35));
+    filter: drop-shadow(0 1rem 1.5rem rgb(58 31 15 / 0.35));
   }
   .actions {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 0.5rem;
+  }
+  /* Wide screens: the end turn button sits beside the hand, which saves a
+     row of height for a bigger table. */
+  @media (min-width: 1024px) {
+    .me {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+    }
+    .me-head {
+      grid-column: 1 / -1;
+    }
   }
   @media (max-width: 600px) {
     .ovens {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
+      gap: 0.5rem;
     }
     .me {
-      gap: 14px;
-      padding: 12px;
+      gap: 0.875rem;
+      padding: 0.75rem;
     }
     .hand {
-      gap: 8px;
+      gap: 0.5rem;
     }
     .actions {
       display: grid;

@@ -76,13 +76,13 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 100px;
-    height: 144px;
-    padding: 8px;
+    width: 6.25rem;
+    height: 9rem;
+    padding: 0.5rem;
     color: var(--color-ink);
-    border: 2px solid rgb(58 31 15 / 0.15);
-    border-radius: 14px;
-    box-shadow: 0 6px 14px rgb(58 31 15 / 0.2);
+    border: 0.125rem solid rgb(58 31 15 / 0.15);
+    border-radius: 0.875rem;
+    box-shadow: 0 0.375rem 0.875rem rgb(58 31 15 / 0.2);
     user-select: none;
     -webkit-touch-callout: none;
     transition:
@@ -91,22 +91,22 @@
       opacity 0.15s ease;
   }
   .game-card.sm {
-    width: 76px;
-    height: 108px;
-    border-radius: 11px;
+    width: 4.75rem;
+    height: 6.75rem;
+    border-radius: 0.6875rem;
   }
   .game-card.interactive {
     cursor: pointer;
   }
   .game-card.interactive:hover {
-    transform: translateY(-6px);
+    transform: translateY(-0.375rem);
   }
   .game-card.selected {
-    transform: translateY(-16px);
+    transform: translateY(-1rem);
     border-color: var(--color-ink);
     box-shadow:
-      0 0 0 3px var(--color-oven-accent),
-      0 12px 22px rgb(58 31 15 / 0.3);
+      0 0 0 0.1875rem var(--color-oven-accent),
+      0 0.75rem 1.375rem rgb(58 31 15 / 0.3);
   }
   .game-card.dimmed {
     opacity: 0.45;
@@ -125,7 +125,7 @@
     background: var(--color-suit-donut);
   }
   .cook {
-    border: 4px solid var(--color-ink);
+    border: 0.25rem solid var(--color-ink);
   }
   /* A chef in hand has no colour yet: dark card with the four suit dots. */
   .wild {
@@ -135,17 +135,17 @@
   }
   .suits {
     display: flex;
-    gap: 4px;
-    margin-top: 6px;
+    gap: 0.25rem;
+    margin-top: 0.375rem;
   }
   .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 62.4375rem;
   }
   .sm .dot {
-    width: 7px;
-    height: 7px;
+    width: 0.4375rem;
+    height: 0.4375rem;
   }
   .dot.croissant {
     background: var(--color-suit-croissant);
@@ -161,8 +161,8 @@
   }
   .corner {
     position: absolute;
-    top: 6px;
-    left: 9px;
+    top: 0.375rem;
+    left: 0.5625rem;
     font-size: 1rem;
     font-weight: 800;
   }
@@ -174,7 +174,7 @@
     font-size: 2rem;
   }
   .value {
-    margin-top: 6px;
+    margin-top: 0.375rem;
     font-size: 2.1rem;
     font-weight: 800;
     line-height: 1;
@@ -186,7 +186,7 @@
     display: none;
   }
   .cook-name {
-    margin-top: 8px;
+    margin-top: 0.5rem;
     max-width: 100%;
     font-size: 0.72rem;
     font-weight: 800;
@@ -198,13 +198,13 @@
   }
   @media (max-width: 600px) {
     .game-card {
-      width: 70px;
-      height: 102px;
-      padding: 6px;
+      width: 4.375rem;
+      height: 6.375rem;
+      padding: 0.375rem;
     }
     .game-card.sm {
-      width: 60px;
-      height: 86px;
+      width: 3.75rem;
+      height: 5.375rem;
     }
     .emoji {
       font-size: 2rem;
@@ -222,8 +222,8 @@
       font-size: 0.6rem;
     }
     .corner {
-      top: 4px;
-      left: 6px;
+      top: 0.25rem;
+      left: 0.375rem;
       font-size: 0.8rem;
     }
     .sm .cook-name {

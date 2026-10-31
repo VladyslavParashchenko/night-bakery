@@ -23,7 +23,7 @@
     line-height: 1.55;
   }
   .markdown :global(h3) {
-    margin: 28px 0 12px;
+    margin: 1.75rem 0 0.75rem;
     font-size: 1.2rem;
     font-weight: 800;
   }
@@ -31,29 +31,29 @@
     margin-top: 0;
   }
   .markdown :global(h4) {
-    margin: 16px 0 4px;
+    margin: 1rem 0 0.25rem;
     font-size: 1rem;
     font-weight: 800;
   }
   .markdown :global(p) {
-    margin: 0 0 12px;
+    margin: 0 0 0.75rem;
   }
   .markdown :global(ul),
   .markdown :global(ol) {
-    margin: 0 0 12px;
-    padding-left: 24px;
+    margin: 0 0 0.75rem;
+    padding-left: 1.5rem;
   }
   .markdown :global(li) {
-    margin-bottom: 4px;
+    margin-bottom: 0.25rem;
   }
   .markdown :global(table) {
     width: 100%;
-    margin: 0 0 16px;
+    margin: 0 0 1rem;
     border-collapse: collapse;
   }
   .markdown :global(th),
   .markdown :global(td) {
-    padding: 10px 12px;
+    padding: 0.625rem 0.75rem;
     text-align: left;
     vertical-align: top;
     border-bottom: 1px solid var(--color-oven-border);
