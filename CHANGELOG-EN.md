@@ -1,6 +1,6 @@
 # What's new
 
-## Coming soon
+## 1.4.0 — 31 October 2026
 
 ### Added
 
