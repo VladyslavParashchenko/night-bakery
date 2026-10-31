@@ -8,6 +8,10 @@
   your turn, winning and losing. Turn them off with the speaker button in the
   menu or at the table.
 
+### Changed
+
+- The menu button for online play now has a simple icon.
+
 ## 1.3.1 — 31 October 2026
 
 ### Added

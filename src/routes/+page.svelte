@@ -80,6 +80,13 @@
         goto("/lobby")
       }}
     >
+      <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="9" cy="8" r="3" />
+        <circle cx="17" cy="10" r="2.5" />
+        <path
+          d="M3.5 20c.5-4 2.7-6 5.5-6s5 2 5.5 6M14 20c.2-2.2 1.4-4 3.5-4 1.8 0 3.1 1.3 3.5 4"
+        />
+      </svg>
       {m.menuOnline()}
     </Button>
     <a class="rules-link" href="/rules">{m.menuRules()}</a>
@@ -178,6 +185,15 @@
     color: var(--color-oven-text);
     font-weight: 700;
     text-align: center;
+  }
+  .play-icon {
+    flex: 0 0 auto;
+    width: 1.45em;
+    height: 1.45em;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .version {
     padding: 4px 10px;
