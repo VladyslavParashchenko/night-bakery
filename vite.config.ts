@@ -7,6 +7,11 @@ import tailwindcss from "@tailwindcss/vite"
 const { version } = JSON.parse(readFileSync("package.json", "utf8"))
 
 export default defineConfig({
+  // peerjs is only imported dynamically, so Vite would discover it late and
+  // re-optimise mid-session, breaking the already loaded page.
+  optimizeDeps: {
+    include: ["peerjs"],
+  },
   define: {
     __APP_VERSION__: JSON.stringify(version),
   },

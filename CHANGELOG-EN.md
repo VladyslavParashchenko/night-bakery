@@ -12,6 +12,11 @@
 
 - The menu button for online play now has a simple icon.
 
+### Fixed
+
+- Playing with friends no longer hangs on "Connecting…" when the online
+  part of the game fails to load; an error is shown instead.
+
 ## 1.3.1 — 31 October 2026
 
 ### Added

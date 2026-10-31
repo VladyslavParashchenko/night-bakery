@@ -99,11 +99,13 @@ class Room {
     this.status = "connecting"
     this.names = [cleanName(name)]
     const code = newCode()
-    const peer = await createPeer(ID_PREFIX + code)
+    // The PeerJS chunk can fail to load (offline, or a stale dev bundle).
+    const peer = await createPeer(ID_PREFIX + code).catch(() => null)
     if (session !== this.#session) {
-      peer.destroy()
+      peer?.destroy()
       return
     }
+    if (!peer) return this.#fail("network")
     this.#peer = peer
     peer.on("open", () => {
       if (this.#peer !== peer) return
@@ -132,11 +134,13 @@ class Room {
     this.code = code
     this.#hostSeen = Date.now()
     this.#startTicking()
-    const peer = await createPeer()
+    // The PeerJS chunk can fail to load (offline, or a stale dev bundle).
+    const peer = await createPeer().catch(() => null)
     if (session !== this.#session) {
-      peer.destroy()
+      peer?.destroy()
       return
     }
+    if (!peer) return this.#fail("network")
     this.#peer = peer
     peer.on("open", () => {
       if (this.#peer !== peer) return
