@@ -44,8 +44,8 @@ from the deck as you fell short of three:
 | 1                | 2        |
 | nothing          | 3        |
 
-A player who has played the last card from their hand draws nothing and
-wins.
+A player who plays the last card from their hand wins at once (see
+"Winning").
 
 ### Putting pastries into an oven
 
@@ -109,6 +109,8 @@ too, no cards are drawn.
 
 ## Winning
 
-The game ends as soon as a player ends their turn with no cards in hand.
-That player wins. If they are caught with "Scorched!" at that moment, they
-draw a card and the game goes on.
+The game ends as soon as a player has no cards left in hand, even mid-turn.
+That player wins. The last card still takes effect first: if it burns an
+oven, the player draws the penalty cards and the game goes on. No "Scorched!"
+window opens after the winning card, and a Carousel played as the last card
+no longer passes any cards.

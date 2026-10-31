@@ -260,6 +260,7 @@ function playNumber(
   turn.values.push(card.value)
   pushLog(state, { type: "play", player: playerId, card, oven: ovenIndex })
   burnIfFull(state, playerId, ovenIndex)
+  winIfEmpty(state, playerId)
   return null
 }
 
@@ -335,7 +336,16 @@ function playCook(
       // The colour it now shows is the whole effect.
       break
   }
+  winIfEmpty(state, playerId)
   return null
+}
+
+// A player wins the moment their last card is played and its effect leaves
+// them empty-handed (a burn penalty refills the hand), even mid-turn.
+function winIfEmpty(state: GameState, playerId: number) {
+  if (state.players[playerId].hand.length > 0) return
+  pushLog(state, { type: "win", player: playerId })
+  state.pending = { kind: "gameOver", winner: playerId }
 }
 
 function validateCookTarget(
@@ -371,8 +381,7 @@ function swapRandomCards(
   their.push(given)
 }
 
-// Only players holding cards take part, so whoever just emptied their hand
-// with the Carousel neither gives nor receives and can still win.
+// Only players holding cards take part.
 function carouselParticipants(state: GameState) {
   return state.players
     .filter((player) => player.hand.length > 0)
@@ -426,11 +435,9 @@ function endTurn(state: GameState, playerId: number): GameError | null {
     }
   }
 
-  // Emptying the hand wins outright; otherwise top up the unplayed quota.
+  // Top up the unplayed quota.
   const missing = cardsShort(turn)
-  if (missing > 0 && state.players[playerId].hand.length > 0) {
-    drawCards(state, playerId, missing, "shortfall")
-  }
+  if (missing > 0) drawCards(state, playerId, missing, "shortfall")
 
   if (turn.scorchPlays > 0) {
     state.pending = { kind: "scorch", offender: playerId }
@@ -460,13 +467,6 @@ function closeScorch(state: GameState): GameError | null {
 }
 
 function finishTurn(state: GameState) {
-  const player = state.players[state.current]
-  if (player.hand.length === 0) {
-    pushLog(state, { type: "win", player: player.id })
-    state.pending = { kind: "gameOver", winner: player.id }
-    return
-  }
-
   state.current = (state.current + 1) % state.players.length
   state.turn = emptyTurn()
   for (const oven of state.ovens) {

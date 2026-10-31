@@ -315,18 +315,6 @@ describe("scorch", () => {
     expect(state.pending).toBeNull()
     expect(state.current).toBe(1)
   })
-
-  it("keeps the round going when the winner gets scorched", () => {
-    let state = setup([[n(5)], [n(2)]])
-    state = run(
-      state,
-      { type: "playNumber", player: 0, cardId: n(5).id, oven: 0 },
-      { type: "endTurn", player: 0 },
-      { type: "slap", player: 1 },
-    )
-    expect(state.pending).toBeNull()
-    expect(state.players[0].hand).toHaveLength(1)
-  })
 })
 
 describe("cooks", () => {
@@ -517,27 +505,15 @@ describe("cooks", () => {
     ])
   })
 
-  it("carousel skips a player who has just emptied their hand", () => {
-    // Player 0 plays the Carousel as their last card and must stay empty.
-    let state = setup([[cook("carousel")], [n(2)], [n(3)]])
-    state = run(
-      state,
-      {
-        type: "playCook",
-        player: 0,
-        cardId: cook("carousel").id,
-        target: { cook: "carousel", oven: 0 },
-      },
-      { type: "submitCarousel", player: 1, cardId: n(2).id },
-      { type: "submitCarousel", player: 2, cardId: n(3).id },
-    )
-    expect(state.players.map((p) => p.hand.map((c) => c.id))).toEqual([
-      [],
-      [n(3).id],
-      [n(2).id],
-    ])
-    state = run(state, { type: "endTurn", player: 0 })
+  it("ends the game at once when the Carousel is the last card", () => {
+    const state = run(setup([[cook("carousel")], [n(2)], [n(3)]]), {
+      type: "playCook",
+      player: 0,
+      cardId: cook("carousel").id,
+      target: { cook: "carousel", oven: 0 },
+    })
     expect(state.pending).toEqual({ kind: "gameOver", winner: 0 })
+    expect(state.players[1].hand).toEqual([n(2)])
   })
 
   it("shares the three-card limit with pastries, any mix allowed", () => {
@@ -571,18 +547,48 @@ describe("cooks", () => {
 })
 
 describe("winning", () => {
-  it("ends the game when a player finishes a turn with an empty hand", () => {
+  it("ends the game as soon as the last card is played", () => {
     let state = setup(
-      [[n(5)], [n(3), cook("lock")], [n(9)]],
+      [[n(5), n(6)], [n(3), cook("lock")], [n(9)]],
       [[n(6, "croissant", 1)], [], []],
     )
-    state = run(
-      state,
-      { type: "playNumber", player: 0, cardId: n(5).id, oven: 0 },
-      { type: "endTurn", player: 0 },
-    )
+    state = run(state, {
+      type: "playNumber",
+      player: 0,
+      cardId: n(5).id,
+      oven: 0,
+    })
+    expect(state.pending).toBeNull()
+
+    state = run(state, {
+      type: "playNumber",
+      player: 0,
+      cardId: n(6).id,
+      oven: 1,
+    })
     expect(state.pending).toEqual({ kind: "gameOver", winner: 0 })
     expect(state.log.at(-1)).toEqual({ type: "win", player: 0 })
+    expect(fail(state, { type: "endTurn", player: 0 })).toBe("pending")
+  })
+
+  it("wins on a value match without opening the Scorched! window", () => {
+    const state = run(
+      setup([[n(5, "donut")], [n(3)]], [[n(5, "bagel", 1)], [], []]),
+      { type: "playNumber", player: 0, cardId: n(5, "donut").id, oven: 0 },
+    )
+    expect(state.pending).toEqual({ kind: "gameOver", winner: 0 })
+  })
+
+  it("does not win when the last card burns an oven", () => {
+    const full = [1, 2, 3, 4].map((copy) => n(5, "bagel", copy))
+    const state = run(setup([[n(7, "bagel")], [n(3)]], [full, [], []]), {
+      type: "playNumber",
+      player: 0,
+      cardId: n(7, "bagel").id,
+      oven: 0,
+    })
+    expect(state.players[0].hand).toHaveLength(2)
+    expect(state.pending).toBeNull()
   })
 })
 
