@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --color-oven-bg: #fff8ed;
+  --color-oven-surface: #ffffff;
+  --color-oven-surface-raised: #f6ebda;
+  --color-oven-border: #e8d5bc;
+  --color-oven-text: #3a1f0f;
+  --color-oven-muted: #7a5a45;
+  --color-oven-accent: #ffd803;
+  --color-oven-accent-hover: #e6c300;
+  --color-oven-fire: #f25f4c;
+
+  /* Ink for coloured cards and accent surfaces; the same in both themes. */
+  --color-ink: #3a1f0f;
+  --color-ink-light: #fff8ed;
+
+  --color-suit-croissant: #f25f4c;
+  --color-suit-bagel: #2cb67d;
+  --color-suit-pretzel: #7f5af0;
+  --color-suit-donut: #ffd803;
+}
+
+/* Dark theme: follows the system unless the player picked a theme. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-oven-bg: #1a120d;
+    --color-oven-surface: #261a13;
+    --color-oven-surface-raised: #33241b;
+    --color-oven-border: #4a3527;
+    --color-oven-text: #fff8ed;
+    --color-oven-muted: #c9ad95;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-oven-bg: #1a120d;
+  --color-oven-surface: #261a13;
+  --color-oven-surface-raised: #33241b;
+  --color-oven-border: #4a3527;
+  --color-oven-text: #fff8ed;
+  --color-oven-muted: #c9ad95;
+}
+
+@layer base {
+  html {
+    background: var(--color-oven-bg);
+    color: var(--color-oven-text);
+  }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+  }
+  h1 {
+    font-size: 2rem;
+    font-weight: 800;
+  }
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+}

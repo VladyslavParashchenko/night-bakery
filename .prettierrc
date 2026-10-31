@@ -1,0 +1,15 @@
+{
+  "plugins": ["prettier-plugin-svelte"],
+  "bracketSameLine": false,
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte",
+        "bracketSameLine": false,
+        "semi": false
+      }
+    }
+  ],
+  "semi": false
+}
