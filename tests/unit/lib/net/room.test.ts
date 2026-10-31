@@ -34,9 +34,12 @@ const fake = vi.hoisted(() => {
 
   class FakePeer extends Emitter {
     static instances: FakePeer[] = []
+    // Stands in for PeerJS failing to load.
+    static broken = false
     destroyed = false
     conns: FakeConn[] = []
     constructor() {
+      if (FakePeer.broken) throw new TypeError("Failed to fetch")
       super()
       FakePeer.instances.push(this)
     }
@@ -60,6 +63,7 @@ const lastPeer = () => fake.FakePeer.instances.at(-1)!
 beforeEach(() => {
   vi.useFakeTimers()
   fake.FakePeer.instances = []
+  fake.FakePeer.broken = false
 })
 afterEach(() => {
   room.leave()
@@ -96,6 +100,18 @@ describe("room", () => {
     lastPeer().emit("error", { type: "network" })
     expect(room.status).toBe("playing")
     expect(game.me).toBe(1)
+  })
+
+  it("reports a network problem when PeerJS fails to load", async () => {
+    fake.FakePeer.broken = true
+    await room.host("Host")
+    expect(room.status).toBe("idle")
+    expect(room.problem).toBe("network")
+
+    room.problem = null
+    await room.join("ABCDE", "Guest")
+    expect(room.status).toBe("idle")
+    expect(room.problem).toBe("network")
   })
 
   it("gives up joining when the host never answers", async () => {
