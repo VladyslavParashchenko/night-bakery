@@ -1,9 +1,12 @@
 # What's new
 
-## Coming soon
+## 1.5.0 — 31 October 2026
 
 ### Changed
 
+- On large screens the whole game is bigger: it grows with the window as far
+  as the table still fits in its height. The end turn button now sits beside
+  your hand there.
 - On Android, the installed game's icon now fills the whole shape instead of
   sitting small inside a white circle.
 
