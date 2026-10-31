@@ -5,6 +5,7 @@ import {
   MIN_VALUE,
   PASTRIES,
   type Card,
+  type VisibleCard,
 } from "./types"
 
 // mulberry32: small deterministic PRNG so the whole game state stays
@@ -27,6 +28,10 @@ export function shuffle<T>(items: T[], seed: number): [T[], number] {
     ;[result[i], result[j]] = [result[j], result[i]]
   }
   return [result, rng]
+}
+
+export function isVisible(card: Card): card is VisibleCard {
+  return card.type !== "hidden"
 }
 
 export function createDeck(): Card[] {

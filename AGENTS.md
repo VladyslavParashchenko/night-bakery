@@ -27,17 +27,28 @@ dialog, so editing these files updates the game.
     returns a new state or an error code. All randomness goes through the
     seeded `rng` stored in the state. `playError` / `legalOvens` explain and
     list where a card may go; the UI uses them for highlighting.
+    `viewFor(state, playerId)` hides what that player may not see (other
+    hands, the deck, the seed) behind `HiddenCard`s; never send a remote
+    player anything else. Components that draw cards take `VisibleCard`.
   - `bot.ts` exposes `chooseBotAction(state, botId)`, which returns the bot's
     next single action.
 - `src/lib/stores/game.svelte.ts` holds the current game in memory (nothing
   is persisted) and schedules bot moves and the scorch window with timers.
   Player actions go through `dispatch`, which reports errors as a toast;
-  bot and timer actions never do.
+  bot and timer actions never do. `game.me` is the seat this device plays.
+- `src/lib/net/room.svelte.ts` runs online games peer to peer over WebRTC
+  (PeerJS and its public signalling server). The host's browser runs the game
+  through the store and sends each guest `viewFor` its seat; guests only send
+  actions, which the host checks with the engine for the sender's seat. A
+  guest who drops out is handed to a bot; if the host leaves, the game ends.
+  Both sides ping, and a long silence counts as leaving, because WebRTC does
+  not always report a vanished peer.
 - `src/lib/theme/theme.svelte.ts` stores the chosen theme; `src/app.html`
   applies it before first paint.
 - `src/lib/i18n/game-labels.ts` maps cards, log entries and error codes to
   messages.
-- Routes: `/` is the menu, `/play` is the table, `/rules` is the rules page.
+- Routes: `/` is the menu, `/lobby` creates or joins an online room,
+  `/play` is the table, `/rules` is the rules page.
   The table is split into components under `src/lib/components`.
 
 ## Conventions

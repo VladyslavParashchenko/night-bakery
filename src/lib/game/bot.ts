@@ -17,6 +17,7 @@ import {
   type GameState,
   type NumberCard,
   type Pastry,
+  type VisibleCard,
 } from "./types"
 
 type ChainStep = { cardId: string; oven: number }
@@ -57,7 +58,7 @@ export function bestChain(state: GameState, botId: number): Chain | null {
   const score = (
     steps: ChainStep[],
     played: NumberCard[],
-    stacks: Card[][],
+    stacks: VisibleCard[][],
     burns: number,
     scorches: number,
   ) => {
@@ -84,7 +85,7 @@ export function bestChain(state: GameState, botId: number): Chain | null {
 
   // Each pastry may go into any oven, so search over (card, oven) pairs.
   const search = (
-    stacks: Card[][],
+    stacks: VisibleCard[][],
     steps: ChainStep[],
     played: NumberCard[],
     burns: number,

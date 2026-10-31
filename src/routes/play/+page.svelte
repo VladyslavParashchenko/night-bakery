@@ -19,10 +19,17 @@
     legalOvens,
     playError,
   } from "$lib/game/engine"
-  import { PASTRIES, type Card, type GameState } from "$lib/game/types"
+  import { isVisible } from "$lib/game/cards"
+  import {
+    PASTRIES,
+    type Card,
+    type GameState,
+    type VisibleCard,
+  } from "$lib/game/types"
   import { errorMessage } from "$lib/i18n/game-labels"
   import { m } from "$lib/i18n/messages"
-  import { game, HUMAN_ID } from "$lib/stores/game.svelte"
+  import { room } from "$lib/net/room.svelte"
+  import { game } from "$lib/stores/game.svelte"
 
   let selectedId = $state<string | null>(null)
   // A Spy or Chef chosen for an oven, waiting for its dialog.
@@ -30,30 +37,32 @@
   let chef = $state<{ cardId: string; oven: number } | null>(null)
   let rulesOpen = $state(false)
 
+  // An online game that ended under us goes back to the lobby to say why.
   $effect(() => {
-    if (!game.state) goto("/")
+    if (!game.state) goto(room.problem ? "/lobby" : "/")
   })
 
+  // Our own hand is never hidden; the filter only narrows the type.
   function sortHand(hand: Card[]) {
-    const rank = (card: Card) =>
+    const rank = (card: VisibleCard) =>
       (card.pastry ? PASTRIES.indexOf(card.pastry) : 10) +
       (card.type === "cook" ? 1000 : card.value * 10)
-    return [...hand].sort((a, b) => rank(a) - rank(b))
+    return hand.filter(isVisible).sort((a, b) => rank(a) - rank(b))
   }
 
   function ovenTargets(state: GameState, card: Card | null): number[] {
-    return card ? legalOvens(state, HUMAN_ID, card) : []
+    return card ? legalOvens(state, game.me, card) : []
   }
 
   function isPlayable(state: GameState, card: Card) {
-    return legalOvens(state, HUMAN_ID, card).length > 0
+    return legalOvens(state, game.me, card).length > 0
   }
 
-  function playSelected(card: Card, oven: number) {
+  function playSelected(card: VisibleCard, oven: number) {
     if (card.type === "number") {
       game.dispatch({
         type: "playNumber",
-        player: HUMAN_ID,
+        player: game.me,
         cardId: card.id,
         oven,
       })
@@ -64,7 +73,7 @@
     } else {
       game.dispatch({
         type: "playCook",
-        player: HUMAN_ID,
+        player: game.me,
         cardId: card.id,
         target: { cook: card.cook, oven },
       })
@@ -74,18 +83,22 @@
 
 {#if game.state}
   {@const state = game.state}
-  {@const me = state.players[HUMAN_ID]}
+  {@const me = state.players[game.me]}
+  {@const hand = sortHand(me.hand)}
   {@const pending = state.pending}
-  {@const myTurn = !pending && state.current === HUMAN_ID}
+  {@const myTurn = !pending && state.current === game.me}
   {@const carouselPick =
     pending?.kind === "carousel" &&
-    pending.choices[HUMAN_ID] === undefined &&
+    pending.choices[game.me] === undefined &&
     me.hand.length > 0}
   {@const selected = myTurn
-    ? (me.hand.find((c) => c.id === selectedId) ?? null)
+    ? (hand.find((c) => c.id === selectedId) ?? null)
     : null}
   {@const targets = ovenTargets(state, selected)}
-  {@const opponents = state.players.filter((p) => p.id !== HUMAN_ID)}
+  {@const opponents = [
+    ...state.players.slice(game.me + 1),
+    ...state.players.slice(0, game.me),
+  ]}
 
   <main class="table">
     <TopBar
@@ -107,8 +120,8 @@
       {#if pending?.kind === "scorch"}
         <ScorchBanner
           offenderName={state.players[pending.offender].name}
-          isHumanOffender={pending.offender === HUMAN_ID}
-          onslap={() => game.dispatch({ type: "slap", player: HUMAN_ID })}
+          isHumanOffender={pending.offender === game.me}
+          onslap={() => game.dispatch({ type: "slap", player: game.me })}
         />
       {:else if pending?.kind === "carousel"}
         <p class="hint strong">
@@ -138,7 +151,7 @@
           clickable={selected !== null}
           onclick={() => {
             if (!selected) return
-            const error = playError(state, HUMAN_ID, selected, index)
+            const error = playError(state, game.me, selected, index)
             if (error) {
               game.showError(error)
               return
@@ -166,7 +179,7 @@
       </div>
 
       <div class="hand">
-        {#each sortHand(me.hand) as card (card.id)}
+        {#each hand as card (card.id)}
           <GameCard
             {card}
             selected={selected?.id === card.id}
@@ -176,14 +189,14 @@
               if (carouselPick) {
                 game.dispatch({
                   type: "submitCarousel",
-                  player: HUMAN_ID,
+                  player: game.me,
                   cardId: card.id,
                 })
                 return
               }
               if (!myTurn) return
               if (card.type === "cook") {
-                const error = cookPlayError(state, HUMAN_ID, card)
+                const error = cookPlayError(state, game.me, card)
                 if (error) {
                   game.showError(error)
                   return
@@ -197,10 +210,10 @@
 
       <div class="actions">
         <Button
-          disabled={!canEndTurn(state, HUMAN_ID)}
+          disabled={!canEndTurn(state, game.me)}
           onclick={() => {
             selectedId = null
-            game.dispatch({ type: "endTurn", player: HUMAN_ID })
+            game.dispatch({ type: "endTurn", player: game.me })
           }}
         >
           {myTurn && me.hand.length > 0 && cardsShort(state.turn) > 0
@@ -223,13 +236,13 @@
     <SpyDialog
       open
       gameState={state}
-      playerId={HUMAN_ID}
+      playerId={game.me}
       onclose={() => (spy = null)}
       onconfirm={(opponent) => {
         if (spy) {
           game.dispatch({
             type: "playCook",
-            player: HUMAN_ID,
+            player: game.me,
             cardId: spy.cardId,
             target: { cook: "spy", oven: spy.oven, opponent },
           })
@@ -247,7 +260,7 @@
         if (chef) {
           game.dispatch({
             type: "playCook",
-            player: HUMAN_ID,
+            player: game.me,
             cardId: chef.cardId,
             target: { cook: "chef", oven: chef.oven, pastry },
           })
@@ -263,7 +276,7 @@
     <GameOverDialog
       players={state.players}
       winnerId={pending.winner}
-      onrematch={() => game.rematch()}
+      onrematch={game.link?.role === "guest" ? undefined : () => game.rematch()}
       onmenu={() => {
         game.quit()
         goto("/")

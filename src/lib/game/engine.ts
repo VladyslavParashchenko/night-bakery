@@ -14,6 +14,7 @@ import {
   type DrawReason,
   type GameError,
   type GameState,
+  type HiddenCard,
   type LogEntry,
   type NumberCard,
   type Oven,
@@ -471,4 +472,35 @@ function finishTurn(state: GameState) {
   for (const oven of state.ovens) {
     if (oven.lockedBy === state.current) oven.lockedBy = null
   }
+}
+
+function hiddenCard(id: string): HiddenCard {
+  return { id, type: "hidden" }
+}
+
+// What `playerId` may see; safe to send to a remote player.
+export function viewFor(state: GameState, playerId: number): GameState {
+  const view = structuredClone(state)
+  for (const player of view.players) {
+    if (player.id === playerId) continue
+    player.hand = player.hand.map((_, i) =>
+      hiddenCard(`hidden-${player.id}-${i}`),
+    )
+  }
+  view.deck = view.deck.map((_, i) => hiddenCard(`hidden-deck-${i}`))
+  view.rng = 0
+  const pending = view.pending
+  if (pending?.kind === "carousel") {
+    for (const id of Object.keys(pending.choices)) {
+      if (Number(id) !== playerId) pending.choices[Number(id)] = "hidden"
+    }
+  }
+  return view
+}
+
+export function handOverToBot(state: GameState, playerId: number): GameState {
+  const next = structuredClone(state)
+  const player = next.players[playerId]
+  if (player) player.isBot = true
+  return next
 }

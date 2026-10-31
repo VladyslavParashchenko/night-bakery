@@ -2,7 +2,7 @@
   import type { GameState } from "$lib/game/types"
   import { logView, type LogView } from "$lib/i18n/game-labels"
   import { m } from "$lib/i18n/messages"
-  import { HUMAN_ID } from "$lib/stores/game.svelte"
+  import { game } from "$lib/stores/game.svelte"
 
   const VISIBLE_ENTRIES = 30
 
@@ -30,7 +30,7 @@
         <li
           class={`tone-${view.tone}`}
           class:latest={i === 0}
-          class:mine={view.player === HUMAN_ID}
+          class:mine={view.player === game.me}
         >
           {#if view.card}
             <span class={`chip ${view.card.pastry}`} aria-hidden="true">

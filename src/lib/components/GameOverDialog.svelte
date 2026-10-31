@@ -12,7 +12,8 @@
   }: {
     players: Player[]
     winnerId: number
-    onrematch: () => void
+    // Online guests have none: the host starts rematches.
+    onrematch?: () => void
     onmenu: () => void
   } = $props()
 
@@ -35,7 +36,11 @@
         </li>
       {/each}
     </ol>
-    <Button size="large" onclick={onrematch}>{m.playAgain()}</Button>
+    {#if onrematch}
+      <Button size="large" onclick={onrematch}>{m.playAgain()}</Button>
+    {:else}
+      <p class="muted">{m.waitingForHost()}</p>
+    {/if}
     <Button size="large" variant="secondary" onclick={onmenu}>
       {m.backToMenu()}
     </Button>

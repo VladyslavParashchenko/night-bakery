@@ -3,40 +3,28 @@
   import ThemeToggle from "$lib/components/ThemeToggle.svelte"
   import Button from "$lib/components/ui/Button.svelte"
   import { MAX_PLAYERS, MIN_PLAYERS } from "$lib/game/types"
+  import { botSetups } from "$lib/i18n/game-labels"
   import { getLocale, locales, m, setLocale } from "$lib/i18n/messages"
+  import { room } from "$lib/net/room.svelte"
   import { game } from "$lib/stores/game.svelte"
-
-  const NAME_KEY = "night-bakery:name"
-  const botNames = [m.botName1, m.botName2, m.botName3, m.botName4]
-
-  function loadName() {
-    try {
-      return localStorage.getItem(NAME_KEY) ?? ""
-    } catch {
-      return ""
-    }
-  }
+  import { loadName, saveName } from "$lib/stores/player-name"
 
   // Coming back to the menu ends any game in progress.
   game.quit()
+  room.leave()
+  room.problem = null
 
   let name = $state(loadName())
   let bots = $state(2)
 
-  function start() {
+  function playerName() {
     const playerName = name.trim() || m.menuDefaultName()
-    try {
-      localStorage.setItem(NAME_KEY, playerName)
-    } catch {
-      // Remembering the name is only a convenience.
-    }
-    const setups = [
-      { name: playerName, isBot: false },
-      ...botNames
-        .slice(0, bots)
-        .map((botName) => ({ name: botName(), isBot: true })),
-    ]
-    game.start(setups)
+    saveName(playerName)
+    return playerName
+  }
+
+  function start() {
+    game.start([{ name: playerName(), isBot: false }, ...botSetups(bots)])
     goto("/play")
   }
 </script>
@@ -80,6 +68,16 @@
     </div>
 
     <Button size="large" onclick={start}>{m.menuStart()}</Button>
+    <Button
+      size="large"
+      variant="secondary"
+      onclick={() => {
+        playerName()
+        goto("/lobby")
+      }}
+    >
+      {m.menuOnline()}
+    </Button>
     <a class="rules-link" href="/rules">{m.menuRules()}</a>
   </section>
 

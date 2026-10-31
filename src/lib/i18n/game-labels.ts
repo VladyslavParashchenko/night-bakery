@@ -6,7 +6,18 @@ import {
   type GameState,
   type LogEntry,
   type Pastry,
+  type PlayerSetup,
 } from "$lib/game/types"
+
+const BOT_NAMES = [m.botName1, m.botName2, m.botName3, m.botName4]
+
+// Names repeat if there are ever more bots than names.
+export function botSetups(count: number): PlayerSetup[] {
+  return Array.from({ length: count }, (_, i) => ({
+    name: BOT_NAMES[i % BOT_NAMES.length](),
+    isBot: true,
+  }))
+}
 
 export const PASTRY_EMOJI: Record<Pastry, string> = {
   croissant: "🥐",

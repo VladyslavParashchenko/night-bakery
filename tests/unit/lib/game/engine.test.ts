@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { createDeck } from "$lib/game/cards"
-import { applyAction, createGame, legalOvens } from "$lib/game/engine"
+import {
+  applyAction,
+  createGame,
+  handOverToBot,
+  legalOvens,
+  viewFor,
+} from "$lib/game/engine"
 import type {
   Action,
   Card,
@@ -577,5 +583,39 @@ describe("winning", () => {
     )
     expect(state.pending).toEqual({ kind: "gameOver", winner: 0 })
     expect(state.log.at(-1)).toEqual({ type: "win", player: 0 })
+  })
+})
+
+describe("remote play", () => {
+  it("hides other hands, the deck and the seed from a player", () => {
+    const state = setup([[n(3)], [n(4), cook("spy")]])
+    const view = viewFor(state, 0)
+    expect(view.players[0].hand).toEqual([n(3)])
+    expect(view.players[1].hand).toHaveLength(2)
+    expect(view.players[1].hand).toEqual([
+      { id: "hidden-1-0", type: "hidden" },
+      { id: "hidden-1-1", type: "hidden" },
+    ])
+    expect(view.deck).toHaveLength(state.deck.length)
+    expect(view.deck.every((card) => card.type === "hidden")).toBe(true)
+    expect(view.rng).toBe(0)
+    expect(state.players[1].hand).toEqual([n(4), cook("spy")])
+  })
+
+  it("hides other players' Carousel picks but keeps who has picked", () => {
+    const state = setup([[n(3)], [n(4)], [n(6)]])
+    state.pending = { kind: "carousel", choices: { 0: n(3).id, 1: n(4).id } }
+    const view = viewFor(state, 0)
+    expect(view.pending).toEqual({
+      kind: "carousel",
+      choices: { 0: n(3).id, 1: "hidden" },
+    })
+  })
+
+  it("hands a player's seat over to a bot", () => {
+    const state = setup([[n(3)], [n(4)]])
+    const next = handOverToBot(state, 1)
+    expect(next.players[1].isBot).toBe(true)
+    expect(state.players[1].isBot).toBe(false)
   })
 })

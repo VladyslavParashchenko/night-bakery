@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PASTRIES, type Card } from "$lib/game/types"
+  import { PASTRIES, type VisibleCard } from "$lib/game/types"
   import {
     COOK_EMOJI,
     PASTRY_EMOJI,
@@ -16,7 +16,7 @@
     size = "md",
     onclick,
   }: {
-    card: Card
+    card: VisibleCard
     selected?: boolean
     disabled?: boolean
     dimmed?: boolean

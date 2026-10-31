@@ -1,5 +1,5 @@
 import { chooseBotAction } from "$lib/game/bot"
-import { applyAction, createGame } from "$lib/game/engine"
+import { applyAction, createGame, handOverToBot } from "$lib/game/engine"
 import type { Action, GameError, GameState, PlayerSetup } from "$lib/game/types"
 
 export const HUMAN_ID = 0
@@ -14,27 +14,49 @@ const BOT_SLAP_CHANCE_VS_BOT = 0.3
 
 type Timer = ReturnType<typeof setTimeout>
 
+// Online play: the host runs the game and publishes each state; a guest
+// shows what it receives and forwards its actions.
+export type Link =
+  | { role: "host"; publish: (state: GameState) => void; close: () => void }
+  | { role: "guest"; send: (action: Action) => void; close: () => void }
+
 class GameStore {
   state = $state.raw<GameState | null>(null)
+  // The seat this device plays.
+  me = $state(HUMAN_ID)
+  link = $state.raw<Link | null>(null)
   error = $state<GameError | null>(null)
   // Bumped on every reported error so the same message can show again.
   errorKey = $state(0)
   #timers = new Set<Timer>()
 
   start(setups: PlayerSetup[], seed = Date.now()) {
-    this.state = createGame(setups, seed >>> 0)
+    this.me = HUMAN_ID
+    this.#set(createGame(setups, seed >>> 0))
     this.error = null
-    this.#schedule()
+  }
+
+  connect(link: Link) {
+    this.link = link
+  }
+
+  receive(state: GameState, me: number) {
+    this.state = state
+    this.me = me
+    this.error = null
   }
 
   rematch() {
-    if (!this.state) return
+    if (!this.state || this.link?.role === "guest") return
     this.start(this.state.players.map(({ name, isBot }) => ({ name, isBot })))
   }
 
   quit() {
     this.#clearTimers()
     this.state = null
+    const link = this.link
+    this.link = null
+    link?.close()
   }
 
   showError(error: GameError) {
@@ -47,7 +69,22 @@ class GameStore {
   }
 
   dispatch(action: Action) {
-    return this.#apply(action, true)
+    if (this.link?.role === "guest") {
+      this.link.send(action)
+      return true
+    }
+    if (!this.state) return false
+    return this.#apply(action, true) === null
+  }
+
+  // The host's check of a remote action; the error goes back to the sender.
+  applyRemote(action: Action): GameError | null {
+    return this.#apply(action, false)
+  }
+
+  replaceWithBot(playerId: number) {
+    if (!this.state) return
+    this.#set(handOverToBot(this.state, playerId))
   }
 
   // Bots and timers act through here; their rejected moves are not the
@@ -56,17 +93,23 @@ class GameStore {
     this.#apply(action, false)
   }
 
-  #apply(action: Action, report: boolean) {
-    if (!this.state) return false
+  #apply(action: Action, report: boolean): GameError | null {
+    // The game has just ended; nothing to do.
+    if (!this.state) return null
     const result = applyAction(this.state, action)
     if (!result.ok) {
       if (report) this.showError(result.error)
-      return false
+      return result.error
     }
-    this.state = result.state
     this.error = null
+    this.#set(result.state)
+    return null
+  }
+
+  #set(state: GameState) {
+    this.state = state
     this.#schedule()
-    return true
+    if (this.link?.role === "host") this.link.publish(state)
   }
 
   #clearTimers() {
@@ -116,8 +159,9 @@ class GameStore {
   }
 
   #scheduleScorch(state: GameState, offender: number) {
-    const chance =
-      offender === HUMAN_ID ? BOT_SLAP_CHANCE_VS_HUMAN : BOT_SLAP_CHANCE_VS_BOT
+    const chance = state.players[offender].isBot
+      ? BOT_SLAP_CHANCE_VS_BOT
+      : BOT_SLAP_CHANCE_VS_HUMAN
     for (const player of state.players) {
       if (!player.isBot || player.id === offender) continue
       if (Math.random() >= chance) continue

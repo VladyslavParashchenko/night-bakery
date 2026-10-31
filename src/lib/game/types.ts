@@ -37,10 +37,14 @@ export type CookCard = {
   pastry: Pastry | null
 }
 
-export type Card = NumberCard | CookCard
+// A card hidden by `viewFor`; the engine and bots never see one.
+export type HiddenCard = { id: string; type: "hidden"; pastry?: undefined }
+
+export type VisibleCard = NumberCard | CookCard
+export type Card = VisibleCard | HiddenCard
 
 export type Oven = {
-  cards: Card[]
+  cards: VisibleCard[]
   lockedBy: number | null
 }
 
@@ -84,7 +88,7 @@ export type GameState = {
   players: Player[]
   ovens: Oven[]
   deck: Card[]
-  discard: Card[]
+  discard: VisibleCard[]
   current: number
   turn: TurnState
   pending: Pending | null
