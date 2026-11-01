@@ -168,4 +168,78 @@ describe("room", () => {
     conn.emit("data", { type: "action", action: { type: "closeScorch" } })
     expect(conn.sent.at(-1)).toEqual({ type: "error", error: "notYourTurn" })
   })
+
+  it("tells everyone who wants a rematch until it starts", async () => {
+    await room.host("Host")
+    lastPeer().emit("open")
+    const conn = new fake.FakeConn()
+    conn.open = true
+    lastPeer().emit("connection", conn)
+    conn.emit("data", { type: "hello", name: "Guest" })
+    room.start([])
+
+    // Only a finished game takes requests.
+    conn.emit("data", { type: "ready" })
+    expect(room.ready).toEqual([])
+
+    game.state = { ...game.state!, pending: { kind: "gameOver", winner: 0 } }
+    conn.emit("data", { type: "ready" })
+    expect(room.ready).toEqual([1])
+    expect(conn.sent.at(-1)).toEqual({ type: "ready", seats: [1] })
+
+    game.rematch()
+    expect(room.ready).toEqual([])
+  })
+
+  it("shows a guest the rematch requests the host has seen", async () => {
+    await room.join("ABCDE", "Guest")
+    lastPeer().emit("open")
+    const conn = lastPeer().conns[0]
+    conn.connect()
+    const state = createGame(
+      [
+        { name: "Host", isBot: false },
+        { name: "Guest", isBot: false },
+      ],
+      3,
+    )
+    const over = { ...state, pending: { kind: "gameOver" as const, winner: 0 } }
+    conn.emit("data", { type: "state", state: viewFor(over, 1), me: 1 })
+
+    room.sendReady()
+    expect(conn.sent.at(-1)).toEqual({ type: "ready" })
+    // Nothing shows until the host confirms.
+    expect(room.ready).toEqual([])
+    conn.emit("data", { type: "ready", seats: [1] })
+    expect(room.ready).toEqual([1])
+
+    const before = room.ready
+    conn.emit("data", { type: "state", state: viewFor(over, 1), me: 1 })
+    expect(room.ready).toBe(before)
+
+    conn.emit("data", { type: "state", state: viewFor(state, 1), me: 1 })
+    expect(room.ready).toEqual([])
+  })
+
+  it("tells nobody about rematches when a guest leaves mid-game", async () => {
+    await room.host("Host")
+    lastPeer().emit("open")
+    const stays = new fake.FakeConn()
+    const leaves = new fake.FakeConn()
+    for (const [conn, name] of [
+      [stays, "Stays"],
+      [leaves, "Leaves"],
+    ] as const) {
+      conn.open = true
+      lastPeer().emit("connection", conn)
+      conn.emit("data", { type: "hello", name })
+    }
+    room.start([])
+
+    leaves.emit("close")
+    expect(game.state?.players[2].isBot).toBe(true)
+    expect(
+      stays.sent.some((m) => (m as { type: string }).type === "ready"),
+    ).toBe(false)
+  })
 })

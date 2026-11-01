@@ -84,6 +84,11 @@ export type LogEntry =
 
 export type DrawReason = "shortfall" | "burn" | "recipe" | "scorch"
 
+// Running totals for the end-of-game summary. The log is capped, so they
+// cannot be counted from it afterwards.
+export type PlayerStats = { played: number; burns: number; drawn: number }
+export type GameStats = { turns: number; players: PlayerStats[] }
+
 export type GameState = {
   players: Player[]
   ovens: Oven[]
@@ -94,6 +99,7 @@ export type GameState = {
   pending: Pending | null
   rng: number
   log: LogEntry[]
+  stats: GameStats
 }
 
 export type CookTarget =

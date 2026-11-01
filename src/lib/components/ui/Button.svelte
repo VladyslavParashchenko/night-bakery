@@ -10,7 +10,7 @@
     onclick,
     children,
   }: {
-    variant?: "primary" | "secondary" | "fire"
+    variant?: "primary" | "secondary" | "ghost" | "fire"
     size?: "default" | "large"
     type?: "button" | "submit" | "reset"
     disabled?: boolean
@@ -59,6 +59,14 @@
     color: var(--color-oven-text);
     background: var(--color-oven-surface-raised);
     border-color: var(--color-oven-border);
+  }
+  .ui-button.ghost {
+    color: var(--color-oven-muted);
+    background: transparent;
+  }
+  .ui-button.ghost:not(:disabled):hover {
+    color: var(--color-oven-text);
+    background: var(--color-oven-surface-raised);
   }
   .ui-button.fire {
     color: #fff;

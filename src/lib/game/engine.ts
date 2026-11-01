@@ -51,6 +51,10 @@ export function createGame(setups: PlayerSetup[], seed: number): GameState {
     pending: null,
     rng: seed,
     log: [],
+    stats: {
+      turns: 1,
+      players: setups.map(() => ({ played: 0, burns: 0, drawn: 0 })),
+    },
   }
   deal(state)
   return state
@@ -103,6 +107,7 @@ function drawCards(
     drawn.push(state.deck.pop()!)
   }
   state.players[playerId].hand.push(...drawn)
+  state.stats.players[playerId].drawn += drawn.length
   if (drawn.length > 0) {
     pushLog(state, {
       type: "draw",
@@ -258,6 +263,7 @@ function playNumber(
   oven.cards.push(card)
   turn.cardsPlayed++
   turn.values.push(card.value)
+  state.stats.players[playerId].played++
   pushLog(state, { type: "play", player: playerId, card, oven: ovenIndex })
   burnIfFull(state, playerId, ovenIndex)
   winIfEmpty(state, playerId)
@@ -280,6 +286,7 @@ function burnIfFull(state: GameState, playerId: number, ovenIndex: number) {
   const oven = state.ovens[ovenIndex]
   if (oven.cards.length < OVEN_CAPACITY) return
   emptyOven(state, oven)
+  state.stats.players[playerId].burns++
   pushLog(state, { type: "burn", player: playerId, oven: ovenIndex })
   drawCards(state, playerId, BURN_PENALTY, "burn")
 }
@@ -308,6 +315,7 @@ function playCook(
     target.cook === "chef" ? { ...card, pastry: target.pastry } : card,
   )
   state.turn.cardsPlayed++
+  state.stats.players[playerId].played++
   pushLog(state, {
     type: "cook",
     player: playerId,
@@ -469,6 +477,7 @@ function closeScorch(state: GameState): GameError | null {
 function finishTurn(state: GameState) {
   state.current = (state.current + 1) % state.players.length
   state.turn = emptyTurn()
+  state.stats.turns++
   for (const oven of state.ovens) {
     if (oven.lockedBy === state.current) oven.lockedBy = null
   }
@@ -481,8 +490,10 @@ function hiddenCard(id: string): HiddenCard {
 // What `playerId` may see; safe to send to a remote player.
 export function viewFor(state: GameState, playerId: number): GameState {
   const view = structuredClone(state)
+  // Once the game is over, everyone may see what the others were left with.
+  const over = view.pending?.kind === "gameOver"
   for (const player of view.players) {
-    if (player.id === playerId) continue
+    if (player.id === playerId || over) continue
     player.hand = player.hand.map((_, i) =>
       hiddenCard(`hidden-${player.id}-${i}`),
     )

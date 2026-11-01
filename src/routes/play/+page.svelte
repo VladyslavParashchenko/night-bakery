@@ -26,13 +26,8 @@
     legalOvens,
     playError,
   } from "$lib/game/engine"
-  import { isVisible } from "$lib/game/cards"
-  import {
-    PASTRIES,
-    type Card,
-    type GameState,
-    type VisibleCard,
-  } from "$lib/game/types"
+  import { isVisible, sortHand } from "$lib/game/cards"
+  import type { Card, GameState, VisibleCard } from "$lib/game/types"
   import { errorMessage } from "$lib/i18n/game-labels"
   import { m } from "$lib/i18n/messages"
   import { room } from "$lib/net/room.svelte"
@@ -45,6 +40,16 @@
   let spy = $state<{ cardId: string; oven: number } | null>(null)
   let chef = $state<{ cardId: string; oven: number } | null>(null)
   let rulesOpen = $state(false)
+  // The results are tucked away so the final table can be seen.
+  let peeking = $state(false)
+  let resultsBar = $state<HTMLElement>()
+  // The results dialog hides with the focus in it, so hand it to the bar.
+  $effect(() => {
+    if (peeking) resultsBar?.querySelector("button")?.focus()
+  })
+  $effect(() => {
+    if (game.state?.pending?.kind !== "gameOver") peeking = false
+  })
 
   // An online game that ended under us goes back to the lobby to say why.
   $effect(() => {
@@ -68,12 +73,6 @@
   })
 
   // Our own hand is never hidden; the filter only narrows the type.
-  function sortHand(hand: Card[]) {
-    const rank = (card: VisibleCard) =>
-      (card.pastry ? PASTRIES.indexOf(card.pastry) : 10) +
-      (card.type === "cook" ? 1000 : card.value * 10)
-    return hand.filter(isVisible).sort((a, b) => rank(a) - rank(b))
-  }
 
   function ovenTargets(state: GameState, card: Card | null): number[] {
     return card ? legalOvens(state, game.me, card) : []
@@ -172,7 +171,7 @@
 {#if game.state}
   {@const state = game.state}
   {@const me = state.players[game.me]}
-  {@const hand = sortHand(me.hand)}
+  {@const hand = sortHand(me.hand.filter(isVisible))}
   {@const pending = state.pending}
   {@const myTurn = isMyTurn(state)}
   {@const carouselPick =
@@ -377,10 +376,22 @@
   <RulesDialog open={rulesOpen} onclose={() => (rulesOpen = false)} />
 
   {#if pending?.kind === "gameOver"}
+    {#if peeking}
+      <div class="results-bar" bind:this={resultsBar}>
+        <Button onclick={() => (peeking = false)}>{m.backToResults()}</Button>
+      </div>
+    {/if}
     <GameOverDialog
-      players={state.players}
+      hidden={peeking}
+      gameState={state}
       winnerId={pending.winner}
+      me={game.me}
+      wins={game.wins}
+      duration={game.endedAt - game.startedAt}
+      ready={room.ready}
       onrematch={game.link?.role === "guest" ? undefined : () => game.rematch()}
+      onready={game.link?.role === "guest" ? () => room.sendReady() : undefined}
+      onpeek={() => (peeking = true)}
       onmenu={() => {
         game.quit()
         goto("/")
@@ -465,6 +476,20 @@
     z-index: 50;
     pointer-events: none;
     filter: drop-shadow(0 1rem 1.5rem rgb(58 31 15 / 0.35));
+  }
+  .results-bar {
+    position: fixed;
+    right: 0;
+    bottom: 1rem;
+    left: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .results-bar :global(.ui-button) {
+    pointer-events: auto;
+    box-shadow: 0 0.75rem 2rem rgb(58 31 15 / 0.3);
   }
   .actions {
     display: flex;

@@ -1,5 +1,19 @@
 # What's new
 
+## Coming soon
+
+### Changed
+
+- A new end-of-game window. It shows whether you won or which place you
+  took, with medals, plus how many turns the game lasted, how many ovens
+  burnt and how long it took. You can also see the cards each player was
+  left with. Rematches keep a series score.
+- A win is greeted with a shower of flour, and the result rows appear one by
+  one. There is no animation if reduced motion is on in your system.
+- "View the table" hides the results so you can look at the final position.
+- In games with friends, guests can press "Play again" too, and everyone sees
+  who wants a rematch.
+
 ## 1.5.0 — 31 October 2026
 
 ### Changed

@@ -28,12 +28,14 @@ export type RoomProblem =
 type GuestMessage =
   | { type: "hello"; name: string }
   | { type: "action"; action: Action }
+  | { type: "ready" }
   | { type: "ping" }
 
 type HostMessage =
   | { type: "lobby"; names: string[] }
   | { type: "state"; state: GameState; me: number }
   | { type: "error"; error: GameError }
+  | { type: "ready"; seats: number[] }
   | { type: "refused"; reason: "full" | "started" }
   | { type: "ping" }
 
@@ -83,6 +85,8 @@ class Room {
   code = $state("")
   names = $state<string[]>([])
   problem = $state<RoomProblem | null>(null)
+  // Seats whose players asked for a rematch since the last game ended.
+  ready = $state<number[]>([])
   #peer: Peer | null = null
   #guests: Guest[] = []
   #host: DataConnection | null = null
@@ -191,6 +195,12 @@ class Room {
     this.status = "playing"
   }
 
+  // A guest asks the host for a rematch.
+  sendReady() {
+    if (this.role !== "guest" || !this.#host?.open) return
+    this.#host.send({ type: "ready" } satisfies GuestMessage)
+  }
+
   get canStart() {
     return (
       this.role === "host" && this.status === "lobby" && this.names.length > 1
@@ -215,6 +225,7 @@ class Room {
     this.role = null
     this.code = ""
     this.names = []
+    this.ready = []
     if (game.link) game.quit()
   }
 
@@ -285,6 +296,13 @@ class Room {
       this.#syncLobby()
       return
     }
+    if (message?.type === "ready" && guest?.seat != null) {
+      if (game.state?.pending?.kind !== "gameOver") return
+      if (!this.ready.includes(guest.seat)) {
+        this.#setReady([...this.ready, guest.seat])
+      }
+      return
+    }
     if (message?.type === "action" && guest?.seat != null) {
       if (!GUEST_ACTIONS.includes(message.action?.type)) return
       // Guests only ever act for their own seat.
@@ -304,7 +322,12 @@ class Room {
     if (!guest) return
     this.#guests = this.#guests.filter((g) => g !== guest)
     if (this.status === "playing") {
-      if (guest.seat != null) game.replaceWithBot(guest.seat)
+      if (guest.seat == null) return
+      const seat = guest.seat
+      if (this.ready.includes(seat)) {
+        this.#setReady(this.ready.filter((other) => other !== seat))
+      }
+      game.replaceWithBot(seat)
     } else {
       this.#syncLobby()
     }
@@ -320,7 +343,19 @@ class Room {
     }
   }
 
+  #setReady(seats: number[]) {
+    this.ready = seats
+    for (const guest of this.#guests) {
+      if (guest.seat == null || !guest.conn.open) continue
+      guest.conn.send({ type: "ready", seats } satisfies HostMessage)
+    }
+  }
+
   #publish(state: GameState) {
+    // A new game has begun, so the old requests are answered.
+    if (state.pending?.kind !== "gameOver" && this.ready.length > 0) {
+      this.ready = []
+    }
     for (const guest of this.#guests) {
       if (guest.seat == null || !guest.conn.open) continue
       guest.conn.send({
@@ -351,7 +386,16 @@ class Room {
           })
         }
         game.receive(message.state, message.me)
+        if (
+          message.state.pending?.kind !== "gameOver" &&
+          this.ready.length > 0
+        ) {
+          this.ready = []
+        }
         this.status = "playing"
+        return
+      case "ready":
+        this.ready = message.seats
         return
       case "error":
         game.showError(message.error)

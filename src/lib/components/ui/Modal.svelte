@@ -2,12 +2,15 @@
   import type { Snippet } from "svelte"
   let {
     open,
+    hidden = false,
     wide = false,
     onclose,
     header,
     children,
   }: {
     open: boolean
+    // Out of sight but still mounted, so its state and animations survive.
+    hidden?: boolean
     wide?: boolean
     onclose?: () => void
     // With a header, only the body scrolls and the header stays in place.
@@ -20,7 +23,7 @@
 
   // Keep the page behind the dialog from scrolling while it is open.
   $effect(() => {
-    if (!open) return
+    if (!open || hidden) return
     const previous = document.body.style.overflow
     document.body.style.overflow = "hidden"
     return () => {
@@ -29,7 +32,12 @@
   })
 </script>
 
-{#if open}<div class="ui-modal-backdrop" role="presentation" onclick={close}>
+{#if open}<div
+    class="ui-modal-backdrop"
+    class:hidden
+    role="presentation"
+    onclick={close}
+  >
     <section
       class="ui-modal"
       class:wide
@@ -55,6 +63,10 @@
     padding: 1rem;
     place-items: center;
     background: rgb(58 31 15 / 0.45);
+  }
+  /* Visibility, unlike display, does not restart CSS animations. */
+  .ui-modal-backdrop.hidden {
+    visibility: hidden;
   }
   .ui-modal {
     width: min(100%, 32.5rem);

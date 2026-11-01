@@ -34,6 +34,14 @@ export function isVisible(card: Card): card is VisibleCard {
   return card.type !== "hidden"
 }
 
+// Pastries by value, then suit; cooks after them, chefs last.
+export function sortHand(hand: VisibleCard[]) {
+  const rank = (card: VisibleCard) =>
+    (card.pastry ? PASTRIES.indexOf(card.pastry) : 10) +
+    (card.type === "cook" ? 1000 : card.value * 10)
+  return [...hand].sort((a, b) => rank(a) - rank(b))
+}
+
 export function createDeck(): Card[] {
   const cards: Card[] = []
   for (const pastry of PASTRIES) {

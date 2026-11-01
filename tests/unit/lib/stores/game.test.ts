@@ -120,6 +120,57 @@ describe("game store", () => {
   })
 })
 
+describe("game store score", () => {
+  const players = [
+    { name: "Me", isBot: false },
+    { name: "Bot A", isBot: true },
+    { name: "Bot B", isBot: true },
+  ]
+
+  function winNow() {
+    game.state = table([n(5)])
+    game.dispatch({
+      type: "playNumber",
+      player: HUMAN_ID,
+      cardId: n(5).id,
+      oven: 0,
+    })
+  }
+
+  it("counts wins across rematches and starts over at a new table", () => {
+    vi.setSystemTime(1000)
+    game.start(players, 3)
+    expect(game.wins).toEqual([0, 0, 0])
+    expect(game.startedAt).toBe(1000)
+
+    vi.setSystemTime(61000)
+    winNow()
+    expect(game.state?.pending).toEqual({ kind: "gameOver", winner: 0 })
+    expect(game.wins).toEqual([1, 0, 0])
+    expect(game.endedAt).toBe(61000)
+
+    game.rematch()
+    expect(game.state?.pending).toBeNull()
+    expect(game.wins).toEqual([1, 0, 0])
+    expect(game.startedAt).toBe(61000)
+    expect(game.endedAt).toBe(0)
+    winNow()
+    expect(game.wins).toEqual([2, 0, 0])
+
+    game.start(players, 3)
+    expect(game.wins).toEqual([0, 0, 0])
+  })
+
+  it("keeps the score on a guest too", () => {
+    game.connect({ role: "guest", send: () => {}, close: () => {} })
+    const state = createGame(players, 3)
+    game.receive(state, 1)
+    game.receive({ ...state, pending: { kind: "gameOver", winner: 2 } }, 1)
+    game.receive({ ...state, pending: { kind: "gameOver", winner: 2 } }, 1)
+    expect(game.wins).toEqual([0, 0, 1])
+  })
+})
+
 describe("online game store", () => {
   const humans = [
     { name: "Host", isBot: false },

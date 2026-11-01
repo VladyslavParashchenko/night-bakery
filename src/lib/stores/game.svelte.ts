@@ -28,9 +28,21 @@ class GameStore {
   error = $state<GameError | null>(null)
   // Bumped on every reported error so the same message can show again.
   errorKey = $state(0)
+  // Wins per seat at this table; rematches keep counting.
+  wins = $state<number[]>([])
+  // When the current game started and, once it is over, ended.
+  startedAt = $state(0)
+  endedAt = $state(0)
   #timers = new Set<Timer>()
 
+  // A new table: the score starts over.
   start(setups: PlayerSetup[], seed = Date.now()) {
+    this.#clearTimers()
+    this.state = null
+    this.#begin(setups, seed)
+  }
+
+  #begin(setups: PlayerSetup[], seed = Date.now()) {
     this.me = HUMAN_ID
     this.#set(createGame(setups, seed >>> 0))
     this.error = null
@@ -41,6 +53,7 @@ class GameStore {
   }
 
   receive(state: GameState, me: number) {
+    this.#track(this.state, state)
     this.state = state
     this.me = me
     this.error = null
@@ -48,7 +61,7 @@ class GameStore {
 
   rematch() {
     if (!this.state || this.link?.role === "guest") return
-    this.start(this.state.players.map(({ name, isBot }) => ({ name, isBot })))
+    this.#begin(this.state.players.map(({ name, isBot }) => ({ name, isBot })))
   }
 
   quit() {
@@ -107,9 +120,25 @@ class GameStore {
   }
 
   #set(state: GameState) {
+    this.#track(this.state, state)
     this.state = state
     this.#schedule()
     if (this.link?.role === "host") this.link.publish(state)
+  }
+
+  // Keeps the score and the clock; guests see the same states, so this works
+  // on both ends of an online game.
+  #track(previous: GameState | null, next: GameState) {
+    const wasOver = previous?.pending?.kind === "gameOver"
+    if (!previous) this.wins = next.players.map(() => 0)
+    if (!previous || (wasOver && next.pending?.kind !== "gameOver")) {
+      this.startedAt = Date.now()
+      this.endedAt = 0
+    }
+    if (next.pending?.kind === "gameOver" && !wasOver) {
+      this.wins[next.pending.winner]++
+      this.endedAt = Date.now()
+    }
   }
 
   #clearTimers() {

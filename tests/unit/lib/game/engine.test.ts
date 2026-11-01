@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { createDeck } from "$lib/game/cards"
+import { createDeck, sortHand } from "$lib/game/cards"
 import {
   applyAction,
   createGame,
@@ -67,6 +67,24 @@ function fail(state: GameState, action: Action) {
 }
 
 describe("deck", () => {
+  it("orders a hand by value, then suit, with cooks last", () => {
+    const chef: CookCard = {
+      id: "cook-chef-0",
+      type: "cook",
+      cook: "chef",
+      pastry: null,
+    }
+    const hand = [chef, cook("lock"), n(9, "bagel"), n(3, "bagel"), n(12)]
+    expect(sortHand(hand)).toEqual([
+      n(3, "bagel"),
+      n(9, "bagel"),
+      n(12),
+      cook("lock"),
+      chef,
+    ])
+    expect(hand[0]).toBe(chef)
+  })
+
   it("has 52 pastries, 16 coloured cooks and 4 chefs with unique ids", () => {
     const deck = createDeck()
     expect(deck).toHaveLength(72)
@@ -579,6 +597,26 @@ describe("winning", () => {
     expect(state.pending).toEqual({ kind: "gameOver", winner: 0 })
   })
 
+  it("keeps running totals for the end-of-game summary", () => {
+    const full = [1, 2, 3, 4].map((copy) => n(5, "bagel", copy))
+    let state = setup([[n(7, "bagel"), n(6, "bagel")], [n(3)]], [full, [], []])
+    expect(state.stats).toEqual({
+      turns: 1,
+      players: [
+        { played: 0, burns: 0, drawn: 0 },
+        { played: 0, burns: 0, drawn: 0 },
+      ],
+    })
+    state = run(
+      state,
+      { type: "playNumber", player: 0, cardId: n(7, "bagel").id, oven: 0 },
+      { type: "endTurn", player: 0 },
+    )
+    // One burn penalty of 2, then 2 more for the unplayed quota.
+    expect(state.stats.players[0]).toEqual({ played: 1, burns: 1, drawn: 4 })
+    expect(state.stats.turns).toBe(2)
+  })
+
   it("does not win when the last card burns an oven", () => {
     const full = [1, 2, 3, 4].map((copy) => n(5, "bagel", copy))
     const state = run(setup([[n(7, "bagel")], [n(3)]], [full, [], []]), {
@@ -606,6 +644,14 @@ describe("remote play", () => {
     expect(view.deck.every((card) => card.type === "hidden")).toBe(true)
     expect(view.rng).toBe(0)
     expect(state.players[1].hand).toEqual([n(4), cook("spy")])
+  })
+
+  it("shows every hand once the game is over", () => {
+    const state = setup([[], [n(4), cook("spy")]])
+    state.pending = { kind: "gameOver", winner: 0 }
+    const view = viewFor(state, 0)
+    expect(view.players[1].hand).toEqual([n(4), cook("spy")])
+    expect(view.deck.every((card) => card.type === "hidden")).toBe(true)
   })
 
   it("hides other players' Carousel picks but keeps who has picked", () => {
