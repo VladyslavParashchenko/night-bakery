@@ -13,6 +13,9 @@
 - "View the table" hides the results so you can look at the final position.
 - In games with friends, guests can press "Play again" too, and everyone sees
   who wants a rematch.
+- The game opens in Ukrainian whenever Ukrainian or Russian is among your
+  browser's languages, even below English. Otherwise it now opens in English
+  rather than Ukrainian.
 
 ## 1.5.0 — 31 October 2026
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { getLocale, m } from "$lib/i18n/messages"
+import { getLocale, m, pickLocale } from "$lib/i18n/messages"
 import en from "../../../../messages/en.json"
 import uk from "../../../../messages/uk.json"
 
@@ -21,5 +21,18 @@ describe("messages", () => {
     const template = { uk, en }[getLocale()].ovenLabel
     expect(m.ovenLabel({ number: 2 })).toBe(template.replace("{number}", "2"))
     expect(m.ovenLabel()).toBe(template)
+  })
+
+  it("picks the saved locale, then the browser's, then English", () => {
+    expect(pickLocale("uk", ["en-US"])).toBe("uk")
+    expect(pickLocale("en", ["uk-UA"])).toBe("en")
+    expect(pickLocale(null, ["de-DE", "uk-UA", "en"])).toBe("uk")
+    // English never outranks another language the browser asks for.
+    expect(pickLocale(null, ["en-US", "zh-CN", "en", "uk"])).toBe("uk")
+    expect(pickLocale(null, ["en-US", "zh-CN"])).toBe("en")
+    expect(pickLocale(null, ["en-US", "ru-RU"])).toBe("uk")
+    expect(pickLocale("ru", ["en-US"])).toBe("en")
+    expect(pickLocale("fr", ["es-US", "zh-CN"])).toBe("en")
+    expect(pickLocale(null, [])).toBe("en")
   })
 })
