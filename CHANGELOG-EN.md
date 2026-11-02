@@ -6,6 +6,9 @@
 
 - On phones, opponents' seats are more compact and sit two to a row, so more
   of the table fits on screen.
+- The theme button now has three settings: same as system, light and
+  dark. Before, a single press stopped the game from following the
+  system theme, so dark mode could fail to turn on.
 
 ## 1.6.0 — 1 November 2026
 

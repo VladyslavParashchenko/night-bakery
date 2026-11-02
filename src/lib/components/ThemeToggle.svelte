@@ -1,10 +1,17 @@
 <script lang="ts">
-  import { Moon, Sun } from "lucide-svelte"
+  import { Monitor, Moon, Sun } from "lucide-svelte"
   import { m } from "$lib/i18n/messages"
   import { theme } from "$lib/theme/theme.svelte"
 
   const label = $derived(
-    theme.current === "dark" ? m.themeLight() : m.themeDark(),
+    m.themeButton({
+      theme:
+        theme.choice === "system"
+          ? m.themeSystem()
+          : theme.choice === "dark"
+            ? m.themeDark()
+            : m.themeLight(),
+    }),
   )
 </script>
 
@@ -13,12 +20,14 @@
   class="theme-toggle"
   aria-label={label}
   title={label}
-  onclick={() => theme.toggle()}
+  onclick={() => theme.cycle()}
 >
-  {#if theme.current === "dark"}
-    <Sun size="1.125rem" />
-  {:else}
+  {#if theme.choice === "system"}
+    <Monitor size="1.125rem" />
+  {:else if theme.choice === "dark"}
     <Moon size="1.125rem" />
+  {:else}
+    <Sun size="1.125rem" />
   {/if}
 </button>
 

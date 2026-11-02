@@ -16,10 +16,20 @@
     />
     <script>
       // Apply the saved theme before first paint to avoid a flash.
+      // Keep in sync with src/lib/theme/theme.svelte.ts.
       try {
-        const theme = localStorage.getItem("night-bakery:theme")
+        let theme = localStorage.getItem("night-bakery:theme")
         if (theme === "light" || theme === "dark") {
           document.documentElement.dataset.theme = theme
+        } else {
+          theme = matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light"
+        }
+        if (theme === "dark") {
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute("content", "#1a120d")
         }
       } catch {}
     </script>
