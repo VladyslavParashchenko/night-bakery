@@ -1,6 +1,6 @@
 # What's new
 
-## Coming soon
+## 1.6.1 — 2 November 2026
 
 ### Changed
 
