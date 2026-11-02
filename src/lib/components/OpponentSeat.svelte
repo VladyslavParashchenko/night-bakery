@@ -67,15 +67,31 @@
     margin-left: -1.125rem;
   }
   @media (max-width: 600px) {
+    .seat {
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+    }
     .head {
       flex-direction: column;
       gap: 0.125rem;
       font-size: 0.9rem;
+    }
+    .back {
+      width: 1.5rem;
+      height: 2.25rem;
+    }
+    .back:not(:first-child) {
+      margin-left: -1.0625rem;
     }
   }
   .count {
     margin-left: 0.75rem;
     font-size: 1.25rem;
     font-weight: 800;
+  }
+  @media (max-width: 600px) {
+    .count {
+      margin-left: 0.5rem;
+    }
   }
 </style>

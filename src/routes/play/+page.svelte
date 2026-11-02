@@ -510,6 +510,11 @@
     }
   }
   @media (max-width: 600px) {
+    /* Seats shrink on phones, so two fit side by side. */
+    .opponents {
+      grid-template-columns: repeat(auto-fit, minmax(7.75rem, 1fr));
+      gap: 0.5rem;
+    }
     .ovens {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0.5rem;
