@@ -128,7 +128,8 @@
     gap: 1.75rem;
     max-width: 27.5rem;
     margin: 0 auto;
-    padding: 3rem 1rem;
+    /* A small top gap so the whole menu fits on short screens. */
+    padding: clamp(0.25rem, 1.5dvh, 0.75rem) 1rem 1rem;
   }
   .hero {
     text-align: center;
