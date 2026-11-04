@@ -11,11 +11,11 @@ their pastries first is the king of the bakery.
   Each suit has 13 cards with values from **2 to 14** (11–13 stand in for the
   Jack, Queen and King, 14 for the Ace).
 - **16 cook cards** — 4 kinds, each in each of the 4 colours:
-  - **Scrubber** — empties an oven.
-  - **Lock** — locks an oven until your next turn.
-  - **Spy** — swaps a random card with an opponent you choose.
-  - **Carousel** — every player passes one card to the left.
-- **4 Chefs** — colourless cooks: they go into any oven and give it a
+  - 🧹 **Scrubber** — empties an oven.
+  - 🔒 **Lock** — locks an oven until your next turn.
+  - 🕵️ **Spy** — swaps a random card with an opponent you choose.
+  - 🎠 **Carousel** — every player passes one card to the left.
+- 👨‍🍳 **4 Chefs** — colourless cooks: they go into any oven and give it a
   colour.
 
 ## Setup
@@ -86,16 +86,16 @@ and goes into any oven.
 The cook stays in the oven as its top card: the next card on it must be the
 same colour. It counts towards the five cards, so it can burn the oven.
 
-- **Scrubber**: the oven it was put into is emptied — all its cards,
+- 🧹 **Scrubber**: the oven it was put into is emptied — all its cards,
   including the Scrubber itself, go to the discard pile.
-- **Lock**: the oven it was put into is locked — until the start of your
+- 🔒 **Lock**: the oven it was put into is locked — until the start of your
   next turn other players can't put cards into it.
-- **Spy**: choose an opponent — a random card of yours goes to them, and a
+- 🕵️ **Spy**: choose an opponent — a random card of yours goes to them, and a
   random card of theirs comes to you. Nobody chooses which cards. If either
   of you has no cards, there is no swap.
-- **Carousel**: every player who has cards secretly picks one and passes it
+- 🎠 **Carousel**: every player who has cards secretly picks one and passes it
   to their left-hand neighbour.
-- **Chef**: put it into any oven, regardless of the top card, and pick a
+- 👨‍🍳 **Chef**: put it into any oven, regardless of the top card, and pick a
   colour. The Chef stays in the oven as that colour, so the next card on it
   must be the chosen colour. When the oven is emptied or burns, the Chef
   becomes colourless again.
@@ -120,11 +120,11 @@ no longer passes any cards.
 When the game ends, the other players score penalty points for the cards
 left in their hands:
 
-| Card                                 | Points          |
-| ------------------------------------ | --------------- |
-| Pastry                               | its value, 2–14 |
-| Cook (Scrubber, Lock, Spy, Carousel) | 15              |
-| Chef                                 | 20              |
+| Card                                             | Points          |
+| ------------------------------------------------ | --------------- |
+| Pastry (🥐🥯🥨🍩)                                | its value, 2–14 |
+| Cook (🧹 Scrubber, 🔒 Lock, 🕵️ Spy, 🎠 Carousel) | 15              |
+| 👨‍🍳 Chef                                          | 20              |
 
 The winner has 0 points. The other places go by points: fewer is better.
 Equal points share a place, so a player whom a Spy or Carousel also left
