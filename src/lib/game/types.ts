@@ -18,6 +18,12 @@ export const BURN_PENALTY = 2
 // At most this many cards (pastries and cooks alike) per turn; ending a turn
 // with fewer played draws the difference.
 export const CARDS_PER_TURN = 3
+// Penalty points for each card left in hand when the game ends: pastries
+// count their value, cooks more. The most points is the worst result.
+export const COOK_POINTS = 15
+export const CHEF_POINTS = 20
+// The worst baker is only named when there is more than one loser.
+export const MIN_PLAYERS_FOR_WORST = 3
 export const MIN_PLAYERS = 2
 export const MAX_PLAYERS = 5
 
@@ -88,6 +94,16 @@ export type DrawReason = "shortfall" | "burn" | "recipe" | "scorch"
 // cannot be counted from it afterwards.
 export type PlayerStats = { played: number; burns: number; drawn: number }
 export type GameStats = { turns: number; players: PlayerStats[] }
+
+// One seat in the end-of-game standings. `points` is null when some hands
+// are hidden (a host on an older version sends them that way); places then
+// go by the number of cards left.
+export type Standing = {
+  player: number
+  points: number | null
+  place: number
+  worst: boolean
+}
 
 export type GameState = {
   players: Player[]

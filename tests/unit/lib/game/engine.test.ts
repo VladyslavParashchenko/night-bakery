@@ -5,6 +5,7 @@ import {
   createGame,
   handOverToBot,
   legalOvens,
+  standings,
   viewFor,
 } from "$lib/game/engine"
 import type {
@@ -669,5 +670,75 @@ describe("remote play", () => {
     const next = handOverToBot(state, 1)
     expect(next.players[1].isBot).toBe(true)
     expect(state.players[1].isBot).toBe(false)
+  })
+})
+
+describe("standings", () => {
+  const chef: CookCard = {
+    id: "cook-chef-0",
+    type: "cook",
+    cook: "chef",
+    pastry: null,
+  }
+
+  function over(hands: Card[][], winner = 0) {
+    const state = setup(hands)
+    state.pending = { kind: "gameOver", winner }
+    return state
+  }
+
+  it("counts pastries by value, cooks as 15 and the Chef as 20", () => {
+    const state = over([[], [n(2), n(14, "donut")], [cook("spy"), chef, n(7)]])
+    expect(standings(state)).toEqual([
+      { player: 0, points: 0, place: 1, worst: false },
+      { player: 1, points: 16, place: 2, worst: false },
+      { player: 2, points: 42, place: 3, worst: true },
+    ])
+  })
+
+  it("ranks by points rather than cards left, ties sharing a place", () => {
+    const state = over(
+      [[n(3), n(4)], [chef], [n(2), n(4, "bagel"), n(14)], []],
+      3,
+    )
+    expect(standings(state)).toEqual([
+      { player: 3, points: 0, place: 1, worst: false },
+      { player: 0, points: 7, place: 2, worst: false },
+      { player: 1, points: 20, place: 3, worst: true },
+      { player: 2, points: 20, place: 3, worst: true },
+    ])
+  })
+
+  it("shares first place with anyone else left empty-handed", () => {
+    const state = over([[n(5)], [], []], 2)
+    expect(
+      standings(state).map(({ player, place }) => [player, place]),
+    ).toEqual([
+      [2, 1],
+      [1, 1],
+      [0, 3],
+    ])
+  })
+
+  it("names no worst baker in a two-player game", () => {
+    const state = over([[], [n(9)]])
+    expect(standings(state)[1]).toEqual({
+      player: 1,
+      points: 9,
+      place: 2,
+      worst: false,
+    })
+  })
+
+  it("falls back to cards left when hands are hidden", () => {
+    const state = over([[], [chef], [n(2), n(3)]])
+    state.pending = null
+    const view = viewFor(state, 0)
+    view.pending = { kind: "gameOver", winner: 0 }
+    expect(standings(view)).toEqual([
+      { player: 0, points: null, place: 1, worst: false },
+      { player: 1, points: null, place: 2, worst: false },
+      { player: 2, points: null, place: 3, worst: false },
+    ])
   })
 })

@@ -114,3 +114,21 @@ That player wins. The last card still takes effect first: if it burns an
 oven, the player draws the penalty cards and the game goes on. No "Scorched!"
 window opens after the winning card, and a Carousel played as the last card
 no longer passes any cards.
+
+## Scoring
+
+When the game ends, the other players score penalty points for the cards
+left in their hands:
+
+| Card                                 | Points          |
+| ------------------------------------ | --------------- |
+| Pastry                               | its value, 2–14 |
+| Cook (Scrubber, Lock, Spy, Carousel) | 15              |
+| Chef                                 | 20              |
+
+The winner has 0 points. The other places go by points: fewer is better.
+Equal points share a place, so a player whom a Spy or Carousel also left
+empty-handed shares first place with the winner.
+
+With three or more players, whoever has the most points is the worst baker
+of the game. If several players tie for the most, they all are.

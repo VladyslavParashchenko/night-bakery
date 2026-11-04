@@ -1,11 +1,14 @@
-import { createDeck, nextRandom, shuffle } from "./cards"
+import { createDeck, isVisible, nextRandom, shuffle } from "./cards"
 import {
   PASTRIES,
   BURN_PENALTY,
   CARDS_PER_TURN,
+  CHEF_POINTS,
+  COOK_POINTS,
   HAND_SIZE,
   MAX_PLAYERS,
   MIN_PLAYERS,
+  MIN_PLAYERS_FOR_WORST,
   OVEN_CAPACITY,
   OVEN_COUNT,
   type Action,
@@ -19,7 +22,9 @@ import {
   type NumberCard,
   type Oven,
   type PlayerSetup,
+  type Standing,
   type TurnState,
+  type VisibleCard,
 } from "./types"
 
 const LOG_LIMIT = 60
@@ -354,6 +359,47 @@ function winIfEmpty(state: GameState, playerId: number) {
   if (state.players[playerId].hand.length > 0) return
   pushLog(state, { type: "win", player: playerId })
   state.pending = { kind: "gameOver", winner: playerId }
+}
+
+// Penalty points a card left in hand costs at the end of the game.
+export function cardPoints(card: VisibleCard) {
+  if (card.type === "number") return card.value
+  return card.cook === "chef" ? CHEF_POINTS : COOK_POINTS
+}
+
+export function handPoints(hand: VisibleCard[]) {
+  return hand.reduce((sum, card) => sum + cardPoints(card), 0)
+}
+
+// Places by penalty points: fewer is better and equal points share a place,
+// so anyone left empty-handed shares first place with the winner. The winner
+// is listed first, then by place and seat. The most points makes the worst
+// baker (several on a tie), but only with more than one loser.
+export function standings(state: GameState): Standing[] {
+  const winner =
+    state.pending?.kind === "gameOver" ? state.pending.winner : null
+  const exact = state.players.every((player) => player.hand.every(isVisible))
+  const points = state.players.map((player) =>
+    exact ? handPoints(player.hand.filter(isVisible)) : null,
+  )
+  const metric = state.players.map(
+    (player) => points[player.id] ?? player.hand.length,
+  )
+  const most = Math.max(...metric)
+  const named = exact && state.players.length >= MIN_PLAYERS_FOR_WORST
+  return state.players
+    .map((player) => ({
+      player: player.id,
+      points: points[player.id],
+      place: 1 + metric.filter((other) => other < metric[player.id]).length,
+      worst: named && most > 0 && metric[player.id] === most,
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.player === winner) - Number(a.player === winner) ||
+        a.place - b.place ||
+        a.player - b.player,
+    )
 }
 
 function validateCookTarget(

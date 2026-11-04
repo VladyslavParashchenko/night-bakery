@@ -5,7 +5,8 @@
   import Button from "$lib/components/ui/Button.svelte"
   import Modal from "$lib/components/ui/Modal.svelte"
   import { isVisible, sortHand } from "$lib/game/cards"
-  import type { GameState, Player } from "$lib/game/types"
+  import { standings } from "$lib/game/engine"
+  import type { GameState } from "$lib/game/types"
   import { COOK_EMOJI, PASTRY_EMOJI } from "$lib/i18n/game-labels"
   import { m } from "$lib/i18n/messages"
 
@@ -56,14 +57,11 @@
 
   const won = $derived(winnerId === me)
   const winner = $derived(gameState.players[winnerId])
-  // The winner comes first even if someone else was left empty-handed too.
-  const standings = $derived(
-    [...gameState.players].sort(
-      (a, b) =>
-        Number(b.id === winnerId) - Number(a.id === winnerId) ||
-        a.hand.length - b.hand.length,
-    ),
-  )
+  // Places and penalty points come from the engine. Without points (an
+  // older host hides the hands) the table falls back to cards left.
+  const table = $derived(standings(gameState))
+  const scored = $derived(table.every((row) => row.points !== null))
+  const mine = $derived(table.find((row) => row.player === me))
   // A host on an older version of the game sends no stats.
   const stats = $derived(gameState.stats as GameState["stats"] | undefined)
   const totalBurns = $derived(
@@ -78,25 +76,18 @@
   // Pressed here; the host's list only shows the request once it arrives.
   let asked = $state(false)
 
-  // Ties share a place.
-  function place(player: Player) {
-    if (player.id === winnerId) return 1
-    return (
-      1 +
-      gameState.players.filter(
-        (other) =>
-          other.id === winnerId || other.hand.length < player.hand.length,
-      ).length
-    )
-  }
-
   const rows = $derived(
-    standings.map((player) => ({
-      player,
-      rank: place(player),
-      own: stats?.players[player.id],
-      left: sortHand(player.hand.filter(isVisible)),
-    })),
+    table.map(({ player: id, points, place, worst }) => {
+      const player = gameState.players[id]
+      return {
+        player,
+        rank: place,
+        score: points ?? player.hand.length,
+        worst,
+        own: stats?.players[id],
+        left: sortHand(player.hand.filter(isVisible)),
+      }
+    }),
   )
 
   function formatDuration(ms: number) {
@@ -115,7 +106,7 @@
     colour: FLOUR_COLOURS[i % FLOUR_COLOURS.length],
   }))
 
-  // Card counts climb from zero as the standings appear.
+  // Points climb from zero as the standings appear.
   const progress = new Tween(reducedMotion ? 1 : 0, {
     duration: 700,
     delay: 250,
@@ -172,10 +163,16 @@
     <p class="muted">
       {won
         ? m.gameOverYouWinHint()
-        : m.gameOverPlace({
-            place: place(gameState.players[me]),
-            total: gameState.players.length,
-          })}
+        : scored
+          ? m.gameOverPlacePoints({
+              place: mine?.place ?? 0,
+              total: gameState.players.length,
+              points: mine?.points ?? 0,
+            })
+          : m.gameOverPlace({
+              place: mine?.place ?? 0,
+              total: gameState.players.length,
+            })}
     </p>
 
     <dl class="stats">
@@ -199,13 +196,14 @@
 
     <div class="standings-head" aria-hidden="true">
       <span>{m.standingsPlayer()}</span>
-      <span>{m.cardsLeftTitle()}</span>
+      <span>{scored ? m.pointsTitle() : m.cardsLeftTitle()}</span>
     </div>
     <ol class="standings">
-      {#each rows as { player, rank, own, left }, i (player.id)}
+      {#each rows as { player, rank, score, worst, own, left }, i (player.id)}
         <li
           class:winner={player.id === winnerId}
           class:mine={player.id === me}
+          class:worst
           style:--i={i}
         >
           <span class="place" aria-label={String(rank)}>
@@ -217,13 +215,20 @@
               {#if player.id === me}
                 <span class="pill">{m.you()}</span>
               {/if}
+              {#if worst}
+                <span class="pill worst-pill">🔥 {m.worstBaker()}</span>
+              {/if}
               {#if ready.includes(player.id)}
                 <span class="pill ready">✓ {m.readyBadge()}</span>
               {/if}
             </div>
             {#if own}
               <span class="player-stats">
-                {m.playerStats({ played: own.played, drawn: own.drawn })}
+                {m.playerStats({
+                  played: own.played,
+                  drawn: own.drawn,
+                  left: player.hand.length,
+                })}
               </span>
             {/if}
             {#if left.length > 0}
@@ -247,9 +252,11 @@
             <span class="count done">{m.noCardsLeft()}</span>
           {:else}
             <strong class="count">
-              <span class="sr-only">{player.hand.length}</span>
+              <span class="sr-only">
+                {scored ? m.pointsValue({ points: score }) : score}
+              </span>
               <span aria-hidden="true">
-                {Math.round(player.hand.length * progress.current)}
+                {Math.round(score * progress.current)}
               </span>
             </strong>
           {/if}
@@ -369,6 +376,17 @@
   .standings li.winner {
     background: color-mix(in srgb, var(--color-oven-accent) 16%, transparent);
     outline: 0.125rem solid var(--color-oven-accent);
+  }
+  .standings li.worst {
+    background: color-mix(
+      in srgb,
+      var(--color-suit-croissant) 14%,
+      var(--color-oven-bg)
+    );
+  }
+  .pill.worst-pill {
+    color: var(--color-ink);
+    background: var(--color-suit-croissant);
   }
   .place {
     font-size: 1.5rem;

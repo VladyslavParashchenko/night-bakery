@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { chooseBotAction } from "$lib/game/bot"
 import { applyAction, createGame } from "$lib/game/engine"
-import type { GameState } from "$lib/game/types"
+import type { CookCard, GameState, NumberCard } from "$lib/game/types"
 
 function playOut(state: GameState, maxSteps = 20000) {
   let current = state
@@ -56,4 +56,66 @@ describe("bots", () => {
       }
     },
   )
+})
+
+describe("bot scoring", () => {
+  const n = (value: number, pastry: NumberCard["pastry"] = "croissant") =>
+    ({ id: `${pastry}-${value}`, type: "number", pastry, value }) as const
+  const chef: CookCard = {
+    id: "cook-chef-0",
+    type: "cook",
+    cook: "chef",
+    pastry: null,
+  }
+
+  function table(hands: GameState["players"][number]["hand"][]) {
+    const state = createGame(
+      hands.map((_, i) => ({ name: `Bot ${i}`, isBot: true })),
+      7,
+    )
+    state.players.forEach((player, i) => (player.hand = hands[i]))
+    state.ovens = [
+      { cards: [n(5, "bagel")], lockedBy: null },
+      { cards: [], lockedBy: null },
+      { cards: [], lockedBy: null },
+    ]
+    return state
+  }
+
+  it("sheds a Chef first when an opponent is about to win", () => {
+    const state = table([[n(3), n(4, "donut"), chef], [n(9)]])
+    expect(chooseBotAction(state, 0)).toMatchObject({
+      type: "playCook",
+      cardId: chef.id,
+    })
+  })
+
+  it("keeps playing pastries while nobody is close to winning", () => {
+    const state = table([
+      [n(3), n(4, "donut"), chef],
+      [n(9), n(10), n(11)],
+    ])
+    expect(chooseBotAction(state, 0)).toMatchObject({ type: "playNumber" })
+  })
+
+  it("prefers shedding the higher of two equal options", () => {
+    const state = table([
+      [n(2, "pretzel"), n(13, "pretzel")],
+      [n(9), n(10), n(11)],
+    ])
+    state.turn.cardsPlayed = 2
+    expect(chooseBotAction(state, 0)).toMatchObject({
+      type: "playNumber",
+      cardId: "pretzel-13",
+    })
+  })
+
+  it("passes the more expensive of two isolated cards on a Carousel", () => {
+    const state = table([[n(2, "pretzel"), chef], [n(9)]])
+    state.pending = { kind: "carousel", choices: {} }
+    expect(chooseBotAction(state, 0)).toMatchObject({
+      type: "submitCarousel",
+      cardId: chef.id,
+    })
+  })
 })

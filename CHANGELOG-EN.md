@@ -1,5 +1,16 @@
 # What's new
 
+## 1.7.0 — 4 November 2026
+
+### Added
+
+- Scoring at the end of the game. Every card left in hand is worth penalty
+  points: a pastry its value, a cook 15, a Chef 20. Places now go by
+  points, and with three or more players whoever has the most points is
+  marked as the worst baker. The points table is in the rules.
+- Bots mind the points: they shed cooks and Chefs when an opponent is about
+  to win, and are keener to play high pastries.
+
 ## 1.6.1 — 2 November 2026
 
 ### Changed

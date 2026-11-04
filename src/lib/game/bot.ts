@@ -1,11 +1,13 @@
 import {
   canPlaceOn,
+  cardPoints,
   cardsShort,
   opensScorch,
   cookPlayError,
   isOvenBlockedFor,
   legalOvens,
 } from "./engine"
+import { isVisible } from "./cards"
 import {
   CARDS_PER_TURN,
   PASTRIES,
@@ -21,6 +23,9 @@ import {
 } from "./types"
 
 type ChainStep = { cardId: string; oven: number }
+// An opponent this close to emptying their hand may end the game any turn,
+// so the bot sheds its most expensive cards first.
+const ENDGAME_HAND = 2
 type Chain = { steps: ChainStep[]; score: number; burns: number }
 
 // How many other cards in the hand share a colour or value with this one.
@@ -37,10 +42,14 @@ function flexibility(card: Card, hand: Card[]) {
   ).length
 }
 
-function leastFlexible(hand: Card[]) {
-  return hand.reduce((worst, card) =>
-    flexibility(card, hand) < flexibility(worst, hand) ? card : worst,
-  )
+// Ties go to the card worth more penalty points.
+function leastFlexible(hand: VisibleCard[]) {
+  return hand.reduce((worst, card) => {
+    const diff = flexibility(card, hand) - flexibility(worst, hand)
+    return diff < 0 || (diff === 0 && cardPoints(card) > cardPoints(worst))
+      ? card
+      : worst
+  })
 }
 
 export function bestChain(state: GameState, botId: number): Chain | null {
@@ -73,8 +82,11 @@ export function bestChain(state: GameState, botId: number): Chain | null {
     const trapBonus = [...traps].filter(
       (oven) => stacks[oven].length === OVEN_CAPACITY - 1,
     ).length
+    // High pastries cost more points if the game ends with them in hand.
+    const shed = played.reduce((sum, card) => sum + card.value, 0)
     return (
-      played.length * 10 -
+      played.length * 10 +
+      shed / 2 -
       burns * 26 -
       (newScorch ? 9 : 0) +
       (recipe ? 10 : 0) +
@@ -206,7 +218,7 @@ export function chooseBotAction(
     return {
       type: "submitCarousel",
       player: botId,
-      cardId: leastFlexible(me.hand).id,
+      cardId: leastFlexible(me.hand.filter(isVisible)).id,
     }
   }
   if (pending || state.current !== botId) return null
@@ -242,6 +254,20 @@ export function chooseBotAction(
   ) {
     const action = cookAction(state, botId, carousel)
     if (action) return action
+  }
+
+  // Cooks cost the most points, so get rid of them before the game ends.
+  const endgame = state.players.some(
+    (p) => p.id !== botId && p.hand.length <= ENDGAME_HAND,
+  )
+  if (endgame && cardsShort(turn) > 0) {
+    const cooks = me.hand
+      .filter((card): card is CookCard => card.type === "cook")
+      .sort((a, b) => cardPoints(b) - cardPoints(a))
+    for (const card of cooks) {
+      const action = cookAction(state, botId, card)
+      if (action) return action
+    }
   }
 
   const chain = bestChain(state, botId)
