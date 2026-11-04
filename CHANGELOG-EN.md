@@ -1,5 +1,13 @@
 # What's new
 
+## 1.7.1 — 4 November 2026
+
+### Changed
+
+- The rules show the cook icons: 🧹 🔒 🕵️ 🎠 👨‍🍳.
+- The start page has less space at the top, so the menu fits on short
+  screens.
+
 ## 1.7.0 — 4 November 2026
 
 ### Added
