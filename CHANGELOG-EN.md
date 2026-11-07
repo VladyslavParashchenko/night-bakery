@@ -1,5 +1,14 @@
 # What's new
 
+## 1.8.0 — 7 November 2026
+
+### Changed
+
+- Ovens look like real ones: cards bake in a dark arched chamber, the
+  flames beneath rise higher with every card, and the marks below are now
+  embers. When an oven is one card away from burning, the last ember
+  flickers.
+
 ## 1.7.1 — 4 November 2026
 
 ### Changed

@@ -15,10 +15,24 @@
   --color-ink: #3a1f0f;
   --color-ink-light: #fff8ed;
 
+  /* Inside of an oven: dark brick and glowing embers in both themes. */
+  --color-chamber: #3b2216;
+  --color-chamber-deep: #1c0f09;
+  --color-chamber-text: #e9c9a8;
+  --color-ember: #ffb347;
+  --color-flame-core: #fff3b0;
+
   --color-suit-croissant: #f25f4c;
   --color-suit-bagel: #2cb67d;
   --color-suit-pretzel: #7f5af0;
   --color-suit-donut: #ffd803;
+}
+
+/* Registered so ovens can animate it: the glow and flames follow it. */
+@property --heat {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
 }
 
 /* Dark theme: follows the system unless the player picked a theme. */
