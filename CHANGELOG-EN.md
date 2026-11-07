@@ -1,5 +1,12 @@
 # What's new
 
+## 1.9.1 — 7 November 2026
+
+### Fixed
+
+- Text on the table is no longer highlighted when selected, so taps and
+  drags don’t paint it blue.
+
 ## 1.9.0 — 7 November 2026
 
 ### Added

@@ -415,6 +415,11 @@
     margin: 0 auto;
     padding: 1rem 1rem 2.5rem;
   }
+  /* Taps and drags on the table should not flash the text-selection
+     highlight. */
+  .table :global(::selection) {
+    background: transparent;
+  }
   .opponents {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10.625rem, 1fr));
