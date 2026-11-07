@@ -56,6 +56,29 @@ describe("bots", () => {
       }
     },
   )
+
+  it.each([
+    [3, 3],
+    [6, 8],
+    [4, 6],
+  ])("finish full games with %i ovens of %i cards", (ovens, ovenCapacity) => {
+    for (let seed = 1; seed <= 10; seed++) {
+      const game = createGame(
+        Array.from({ length: 5 }, (_, i) => ({
+          name: `Bot ${i}`,
+          isBot: true,
+        })),
+        seed * 131 + ovens,
+        { ovens, ovenCapacity },
+      )
+      const { state } = playOut(game)
+      expect(state.pending?.kind).toBe("gameOver")
+      expect(state.ovens).toHaveLength(ovens)
+      expect(
+        state.ovens.every((oven) => oven.cards.length < ovenCapacity),
+      ).toBe(true)
+    }
+  })
 })
 
 describe("bot scoring", () => {

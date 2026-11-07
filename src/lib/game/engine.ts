@@ -9,13 +9,17 @@ import {
   MAX_PLAYERS,
   MIN_PLAYERS,
   MIN_PLAYERS_FOR_WORST,
-  OVEN_CAPACITY,
-  OVEN_COUNT,
+  DEFAULT_OPTIONS,
+  MAX_OVEN_CAPACITY,
+  MAX_OVENS,
+  MIN_OVEN_CAPACITY,
+  MIN_OVENS,
   type Action,
   type ActionResult,
   type Card,
   type DrawReason,
   type GameError,
+  type GameOptions,
   type GameState,
   type HiddenCard,
   type LogEntry,
@@ -37,9 +41,19 @@ function emptyTurn(): TurnState {
   }
 }
 
-export function createGame(setups: PlayerSetup[], seed: number): GameState {
+export function createGame(
+  setups: PlayerSetup[],
+  seed: number,
+  options: GameOptions = DEFAULT_OPTIONS,
+): GameState {
   if (setups.length < MIN_PLAYERS || setups.length > MAX_PLAYERS) {
     throw new Error(`Night Bakery needs ${MIN_PLAYERS}-${MAX_PLAYERS} players`)
+  }
+  if (!isValidOptions(options)) {
+    throw new Error(
+      `Night Bakery needs ${MIN_OVENS}-${MAX_OVENS} ovens that burn at ` +
+        `${MIN_OVEN_CAPACITY}-${MAX_OVEN_CAPACITY} cards`,
+    )
   }
   const state: GameState = {
     players: setups.map((setup, id) => ({
@@ -49,6 +63,7 @@ export function createGame(setups: PlayerSetup[], seed: number): GameState {
       hand: [],
     })),
     ovens: [],
+    ovenCapacity: options.ovenCapacity,
     deck: [],
     discard: [],
     current: 0,
@@ -61,18 +76,57 @@ export function createGame(setups: PlayerSetup[], seed: number): GameState {
       players: setups.map(() => ({ played: 0, burns: 0, drawn: 0 })),
     },
   }
-  deal(state)
+  deal(state, options.ovens)
   return state
 }
 
-function deal(state: GameState) {
+function inRange(value: unknown, min: number, max: number) {
+  return Number.isInteger(value) && Number(value) >= min && Number(value) <= max
+}
+
+export function isValidOptions(options: GameOptions) {
+  return (
+    inRange(options.ovens, MIN_OVENS, MAX_OVENS) &&
+    inRange(options.ovenCapacity, MIN_OVEN_CAPACITY, MAX_OVEN_CAPACITY)
+  )
+}
+
+// Options from storage or the network: anything missing or out of range
+// falls back to the standard table.
+export function normalizeOptions(raw: unknown): GameOptions {
+  const value = (raw ?? {}) as Partial<Record<keyof GameOptions, unknown>>
+  return {
+    ovens: inRange(value.ovens, MIN_OVENS, MAX_OVENS)
+      ? Number(value.ovens)
+      : DEFAULT_OPTIONS.ovens,
+    ovenCapacity: inRange(
+      value.ovenCapacity,
+      MIN_OVEN_CAPACITY,
+      MAX_OVEN_CAPACITY,
+    )
+      ? Number(value.ovenCapacity)
+      : DEFAULT_OPTIONS.ovenCapacity,
+  }
+}
+
+// How many cards burn an oven in this game.
+export function ovenCapacity(state: GameState) {
+  return state.ovenCapacity ?? DEFAULT_OPTIONS.ovenCapacity
+}
+
+// The setup a rematch repeats.
+export function gameOptions(state: GameState): GameOptions {
+  return { ovens: state.ovens.length, ovenCapacity: ovenCapacity(state) }
+}
+
+function deal(state: GameState, ovens: number) {
   const [deck, rng] = shuffle(createDeck(), state.rng)
   state.rng = rng
   state.deck = deck
   for (let round = 0; round < HAND_SIZE; round++) {
     for (const player of state.players) player.hand.push(state.deck.pop()!)
   }
-  for (let i = 0; i < OVEN_COUNT; i++) {
+  for (let i = 0; i < ovens; i++) {
     state.ovens.push({ cards: [drawNumberForOven(state)], lockedBy: null })
   }
 }
@@ -289,7 +343,7 @@ function emptyOven(state: GameState, oven: Oven) {
 
 function burnIfFull(state: GameState, playerId: number, ovenIndex: number) {
   const oven = state.ovens[ovenIndex]
-  if (oven.cards.length < OVEN_CAPACITY) return
+  if (oven.cards.length < ovenCapacity(state)) return
   emptyOven(state, oven)
   state.stats.players[playerId].burns++
   pushLog(state, { type: "burn", player: playerId, oven: ovenIndex })

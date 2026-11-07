@@ -6,12 +6,12 @@ import {
   cookPlayError,
   isOvenBlockedFor,
   legalOvens,
+  ovenCapacity,
 } from "./engine"
 import { isVisible } from "./cards"
 import {
   CARDS_PER_TURN,
   PASTRIES,
-  OVEN_CAPACITY,
   type Action,
   type Card,
   type CookCard,
@@ -61,6 +61,7 @@ export function bestChain(state: GameState, botId: number): Chain | null {
     (card): card is NumberCard => card.type === "number",
   )
   const open = state.ovens.map((oven) => !isOvenBlockedFor(oven, botId))
+  const capacity = ovenCapacity(state)
 
   let best: Chain | null = null
 
@@ -80,7 +81,7 @@ export function bestChain(state: GameState, botId: number): Chain | null {
     // Ovens left one card short of burning are traps for the next player.
     const traps = new Set(steps.map((step) => step.oven))
     const trapBonus = [...traps].filter(
-      (oven) => stacks[oven].length === OVEN_CAPACITY - 1,
+      (oven) => stacks[oven].length === capacity - 1,
     ).length
     // High pastries cost more points if the game ends with them in hand.
     const shed = played.reduce((sum, card) => sum + card.value, 0)
@@ -115,7 +116,7 @@ export function bestChain(state: GameState, botId: number): Chain | null {
         if (!canPlaceOn({ cards: stack, lockedBy: null }, card)) return
         const scorch = opensScorch(stack.at(-1), card)
         const next = [...stack, card]
-        const burned = next.length >= OVEN_CAPACITY
+        const burned = next.length >= capacity
         const nextStacks = stacks.map((s, i) =>
           i === oven ? (burned ? [] : next) : s,
         )
@@ -149,7 +150,7 @@ function cookTarget(
   if (ovens.length === 0) return null
   const size = (index: number) => state.ovens[index].cards.length
   // The cook itself adds a card, so avoid ovens one card short of burning.
-  const safe = ovens.filter((index) => size(index) < OVEN_CAPACITY - 1)
+  const safe = ovens.filter((index) => size(index) < ovenCapacity(state) - 1)
   const pool = safe.length > 0 ? safe : ovens
   const emptiest = pool.reduce((a, b) => (size(b) < size(a) ? b : a))
 
@@ -282,7 +283,7 @@ export function chooseBotAction(
     const target: CookTarget | null =
       chainOven !== undefined &&
       legalOvens(state, botId, clean).includes(chainOven) &&
-      state.ovens[chainOven].cards.length < OVEN_CAPACITY - 1
+      state.ovens[chainOven].cards.length < ovenCapacity(state) - 1
         ? { cook: "clean", oven: chainOven }
         : cookTarget(state, botId, clean)
     if (target) {

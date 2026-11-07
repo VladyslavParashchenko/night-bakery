@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { createGame } from "$lib/game/engine"
-import type { Action, GameState, NumberCard, Pastry } from "$lib/game/types"
+import {
+  DEFAULT_OPTIONS,
+  type Action,
+  type GameState,
+  type NumberCard,
+  type Pastry,
+} from "$lib/game/types"
 import { game, HUMAN_ID, SCORCH_WINDOW_MS } from "$lib/stores/game.svelte"
 
 const n = (value: number, pastry: Pastry = "croissant"): NumberCard => ({
@@ -43,6 +49,7 @@ describe("game store", () => {
         { name: "Me", isBot: false },
         { name: "Bot", isBot: true },
       ],
+      DEFAULT_OPTIONS,
       3,
     )
     game.dispatch({ type: "endTurn", player: HUMAN_ID })
@@ -61,6 +68,7 @@ describe("game store", () => {
         { name: "Me", isBot: false },
         { name: "Bot", isBot: true },
       ],
+      DEFAULT_OPTIONS,
       3,
     )
     game.dispatch({ type: "endTurn", player: 1 })
@@ -139,7 +147,7 @@ describe("game store score", () => {
 
   it("counts wins across rematches and starts over at a new table", () => {
     vi.setSystemTime(1000)
-    game.start(players, 3)
+    game.start(players, DEFAULT_OPTIONS, 3)
     expect(game.wins).toEqual([0, 0, 0])
     expect(game.startedAt).toBe(1000)
 
@@ -157,8 +165,17 @@ describe("game store score", () => {
     winNow()
     expect(game.wins).toEqual([2, 0, 0])
 
-    game.start(players, 3)
+    game.start(players, DEFAULT_OPTIONS, 3)
     expect(game.wins).toEqual([0, 0, 0])
+  })
+
+  it("keeps the table setup for a rematch", () => {
+    game.start(players, { ovens: 5, ovenCapacity: 7 }, 3)
+    game.state = { ...game.state!, pending: { kind: "gameOver", winner: 0 } }
+    game.rematch()
+    expect(game.state?.pending).toBeNull()
+    expect(game.state?.ovens).toHaveLength(5)
+    expect(game.state?.ovenCapacity).toBe(7)
   })
 
   it("keeps the score on a guest too", () => {
@@ -181,7 +198,7 @@ describe("online game store", () => {
     const published: GameState[] = []
     const close = vi.fn()
     game.connect({ role: "host", publish: (s) => published.push(s), close })
-    game.start(humans, 3)
+    game.start(humans, DEFAULT_OPTIONS, 3)
     expect(published).toHaveLength(1)
 
     expect(game.applyRemote({ type: "endTurn", player: 1 })).toBe("notYourTurn")
@@ -196,7 +213,7 @@ describe("online game store", () => {
 
   it("lets a bot take over a player who left", () => {
     game.connect({ role: "host", publish: () => {}, close: () => {} })
-    game.start(humans, 3)
+    game.start(humans, DEFAULT_OPTIONS, 3)
     game.dispatch({ type: "endTurn", player: HUMAN_ID })
     game.replaceWithBot(1)
     expect(game.state?.players[1].isBot).toBe(true)

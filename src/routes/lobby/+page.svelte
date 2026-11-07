@@ -2,13 +2,15 @@
   import { ArrowLeft } from "lucide-svelte"
   import { goto } from "$app/navigation"
   import { page } from "$app/state"
+  import TableOptions from "$lib/components/TableOptions.svelte"
   import Button from "$lib/components/ui/Button.svelte"
-  import { MAX_PLAYERS } from "$lib/game/types"
+  import { DEFAULT_OPTIONS, MAX_PLAYERS } from "$lib/game/types"
   import { botSetups } from "$lib/i18n/game-labels"
   import { m } from "$lib/i18n/messages"
   import { normalizeCode, room } from "$lib/net/room.svelte"
   import { game } from "$lib/stores/game.svelte"
   import { loadName } from "$lib/stores/player-name"
+  import { loadTableOptions } from "$lib/stores/table-options"
 
   const name = loadName() || m.menuDefaultName()
 
@@ -27,6 +29,11 @@
   $effect(() => {
     if (room.status === "playing" && game.state) goto("/play")
   })
+
+  const standardTable = $derived(
+    room.options.ovens === DEFAULT_OPTIONS.ovens &&
+      room.options.ovenCapacity === DEFAULT_OPTIONS.ovenCapacity,
+  )
 
   // Friends who join after the pick take seats from the bots.
   const bots = $derived(Math.min(pickedBots, room.seatsLeft))
@@ -73,7 +80,7 @@
 
   <section class="panel">
     {#if room.status === "idle"}
-      <Button size="large" onclick={() => room.host(name)}>
+      <Button size="large" onclick={() => room.host(name, loadTableOptions())}>
         {m.lobbyHost()}
       </Button>
       <p class="muted">{m.lobbyHostHint()}</p>
@@ -143,6 +150,16 @@
             </div>
           </div>
         {/if}
+        <TableOptions
+          bind:options={
+            () => room.options, (options) => room.setOptions(options)
+          }
+        />
+        {#if !standardTable && room.outdated.length > 0}
+          <p class="warning" role="alert">
+            {m.lobbyOutdated({ names: room.outdated.join(", ") })}
+          </p>
+        {/if}
         <Button
           size="large"
           disabled={!room.canStart}
@@ -154,6 +171,7 @@
           <p class="muted">{m.lobbyNeedFriend()}</p>
         {/if}
       {:else}
+        <TableOptions options={room.options} readonly />
         <p class="muted">{m.lobbyWaitingHost()}</p>
       {/if}
 
@@ -281,6 +299,14 @@
     font-weight: 700;
     background: var(--color-oven-accent);
     border-radius: 62.4375rem;
+  }
+  .warning {
+    margin: 0;
+    padding: 0.625rem 0.875rem;
+    color: var(--color-ink);
+    font-weight: 600;
+    background: var(--color-oven-accent);
+    border-radius: 0.75rem;
   }
   .choices {
     display: grid;

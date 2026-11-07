@@ -1,5 +1,17 @@
 # What's new
 
+## 1.9.0 — 7 November 2026
+
+### Added
+
+- Table setup: the “Set up the table” button in the menu and in an online
+  room lets you pick 3 to 6 ovens and the card that burns an oven, from the
+  3rd to the 8th. The dialog shows what the table will look like. The
+  choice is remembered and a rematch keeps it. Guests see the host's table
+  in the room, and the host is warned if someone's version is too old to
+  show it. The standard rules still use three ovens that burn at the fifth
+  card.
+
 ## 1.8.0 — 7 November 2026
 
 ### Changed

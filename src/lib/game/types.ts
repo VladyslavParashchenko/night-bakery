@@ -12,8 +12,12 @@ export const CHEF_COPIES = 4
 export const MIN_VALUE = 2
 export const MAX_VALUE = 14
 export const HAND_SIZE = 7
-export const OVEN_COUNT = 3
-export const OVEN_CAPACITY = 5
+// The table can be set up with a different number of ovens and a different
+// burn limit within these ranges; `DEFAULT_OPTIONS` is the standard table.
+export const MIN_OVENS = 3
+export const MAX_OVENS = 6
+export const MIN_OVEN_CAPACITY = 3
+export const MAX_OVEN_CAPACITY = 8
 export const BURN_PENALTY = 2
 // At most this many cards (pastries and cooks alike) per turn; ending a turn
 // with fewer played draws the difference.
@@ -105,9 +109,19 @@ export type Standing = {
   worst: boolean
 }
 
+export type GameOptions = { ovens: number; ovenCapacity: number }
+
+export const DEFAULT_OPTIONS: Readonly<GameOptions> = {
+  ovens: 3,
+  ovenCapacity: 5,
+}
+
 export type GameState = {
   players: Player[]
   ovens: Oven[]
+  // Cards that burn an oven. A host on an older version sends none; read it
+  // through `ovenCapacity(state)`.
+  ovenCapacity?: number
   deck: Card[]
   discard: VisibleCard[]
   current: number

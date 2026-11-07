@@ -1,6 +1,18 @@
 import { chooseBotAction } from "$lib/game/bot"
-import { applyAction, createGame, handOverToBot } from "$lib/game/engine"
-import type { Action, GameError, GameState, PlayerSetup } from "$lib/game/types"
+import {
+  applyAction,
+  createGame,
+  gameOptions,
+  handOverToBot,
+} from "$lib/game/engine"
+import {
+  DEFAULT_OPTIONS,
+  type Action,
+  type GameError,
+  type GameOptions,
+  type GameState,
+  type PlayerSetup,
+} from "$lib/game/types"
 
 export const HUMAN_ID = 0
 
@@ -36,15 +48,19 @@ class GameStore {
   #timers = new Set<Timer>()
 
   // A new table: the score starts over.
-  start(setups: PlayerSetup[], seed = Date.now()) {
+  start(
+    setups: PlayerSetup[],
+    options: GameOptions = DEFAULT_OPTIONS,
+    seed = Date.now(),
+  ) {
     this.#clearTimers()
     this.state = null
-    this.#begin(setups, seed)
+    this.#begin(setups, options, seed)
   }
 
-  #begin(setups: PlayerSetup[], seed = Date.now()) {
+  #begin(setups: PlayerSetup[], options: GameOptions, seed = Date.now()) {
     this.me = HUMAN_ID
-    this.#set(createGame(setups, seed >>> 0))
+    this.#set(createGame(setups, seed >>> 0, options))
     this.error = null
   }
 
@@ -61,7 +77,10 @@ class GameStore {
 
   rematch() {
     if (!this.state || this.link?.role === "guest") return
-    this.#begin(this.state.players.map(({ name, isBot }) => ({ name, isBot })))
+    this.#begin(
+      this.state.players.map(({ name, isBot }) => ({ name, isBot })),
+      gameOptions(this.state),
+    )
   }
 
   quit() {

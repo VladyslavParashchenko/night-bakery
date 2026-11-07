@@ -27,6 +27,11 @@ their pastries first is the king of the bakery.
    over another card.
 4. The rest of the deck stays face down. The discard pile goes next to it.
 
+**Table setup.** To experiment, you can play with **3 to 6 ovens** and have
+an oven burn at **3 to 8 cards** instead of five. Pick them with the
+“Set up the table” button before the game. These rules describe the standard table: three
+ovens that burn at five cards.
+
 ## Your turn
 
 On your turn you may play **up to 3 cards** — pastries and cooks in any

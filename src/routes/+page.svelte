@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation"
   import ChangelogDialog from "$lib/components/ChangelogDialog.svelte"
   import SoundToggle from "$lib/components/SoundToggle.svelte"
+  import TableOptions from "$lib/components/TableOptions.svelte"
   import ThemeToggle from "$lib/components/ThemeToggle.svelte"
   import Button from "$lib/components/ui/Button.svelte"
   import { MAX_PLAYERS, MIN_PLAYERS } from "$lib/game/types"
@@ -10,6 +11,7 @@
   import { room } from "$lib/net/room.svelte"
   import { game } from "$lib/stores/game.svelte"
   import { loadName, saveName } from "$lib/stores/player-name"
+  import { loadTableOptions } from "$lib/stores/table-options"
   import { APP_VERSION } from "$lib/version"
 
   // Coming back to the menu ends any game in progress.
@@ -19,6 +21,7 @@
 
   let name = $state(loadName())
   let bots = $state(2)
+  let options = $state(loadTableOptions())
   let changelogOpen = $state(false)
 
   function playerName() {
@@ -28,7 +31,10 @@
   }
 
   function start() {
-    game.start([{ name: playerName(), isBot: false }, ...botSetups(bots)])
+    game.start(
+      [{ name: playerName(), isBot: false }, ...botSetups(bots)],
+      options,
+    )
     goto("/play")
   }
 </script>
@@ -70,6 +76,8 @@
         {/each}
       </div>
     </div>
+
+    <TableOptions bind:options />
 
     <Button size="large" onclick={start}>{m.menuStart()}</Button>
     <Button

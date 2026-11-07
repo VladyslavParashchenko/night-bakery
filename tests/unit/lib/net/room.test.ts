@@ -148,6 +148,52 @@ describe("room", () => {
     expect(room.status).toBe("playing")
   })
 
+  it("starts the table the host set up and shows it to guests", async () => {
+    await room.host("Host")
+    lastPeer().emit("open")
+    const conn = new fake.FakeConn()
+    conn.open = true
+    lastPeer().emit("connection", conn)
+    conn.emit("data", { type: "hello", name: "Guest", tables: true })
+    expect(room.outdated).toEqual([])
+
+    room.setOptions({ ovens: 6, ovenCapacity: 3 })
+    expect(conn.sent.at(-1)).toEqual({
+      type: "lobby",
+      names: ["Host", "Guest"],
+      options: { ovens: 6, ovenCapacity: 3 },
+    })
+    room.start([])
+    expect(game.state?.ovens).toHaveLength(6)
+    expect(game.state?.ovenCapacity).toBe(3)
+  })
+
+  it("names guests too old to see a custom table", async () => {
+    await room.host("Host")
+    lastPeer().emit("open")
+    const conn = new fake.FakeConn()
+    conn.open = true
+    lastPeer().emit("connection", conn)
+    conn.emit("data", { type: "hello", name: "Old" })
+    expect(room.outdated).toEqual(["Old"])
+  })
+
+  it("shows a guest the host's table, standard from an older host", async () => {
+    await room.join("ABCDE", "Guest")
+    lastPeer().emit("open")
+    const conn = lastPeer().conns[0]
+    conn.connect()
+    expect(conn.sent[0]).toMatchObject({ type: "hello", tables: true })
+    conn.emit("data", {
+      type: "lobby",
+      names: ["Host", "Guest"],
+      options: { ovens: 4, ovenCapacity: 7 },
+    })
+    expect(room.options).toEqual({ ovens: 4, ovenCapacity: 7 })
+    conn.emit("data", { type: "lobby", names: ["Host", "Guest"] })
+    expect(room.options).toEqual({ ovens: 3, ovenCapacity: 5 })
+  })
+
   it("plays a guest's action for the guest's own seat only", async () => {
     await room.host("Host")
     lastPeer().emit("open")

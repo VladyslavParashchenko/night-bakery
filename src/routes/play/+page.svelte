@@ -24,6 +24,7 @@
     cardsShort,
     cookPlayError,
     legalOvens,
+    ovenCapacity,
     playError,
   } from "$lib/game/engine"
   import { isVisible, sortHand } from "$lib/game/cards"
@@ -226,11 +227,16 @@
       {/if}
     </section>
 
-    <section class="ovens">
+    <!-- On a phone four ovens make a 2 × 2 square instead of 3 + 1. -->
+    <section
+      class="ovens"
+      style:--phone-columns={state.ovens.length === 4 ? 2 : 3}
+    >
       {#each state.ovens as oven, index (index)}
         <OvenView
           {oven}
           {index}
+          capacity={ovenCapacity(state)}
           lockedByName={oven.lockedBy === null
             ? null
             : state.players[oven.lockedBy].name}
@@ -516,7 +522,7 @@
       gap: 0.5rem;
     }
     .ovens {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(var(--phone-columns), minmax(0, 1fr));
       gap: 0.5rem;
     }
     .me {

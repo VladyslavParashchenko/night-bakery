@@ -5,6 +5,7 @@ import {
   createGame,
   handOverToBot,
   legalOvens,
+  normalizeOptions,
   standings,
   viewFor,
 } from "$lib/game/engine"
@@ -136,6 +137,45 @@ describe("createGame", () => {
     ]
     expect(createGame(players, 1)).toEqual(createGame(players, 1))
   })
+
+  it("sets up the chosen number of ovens and their burn limit", () => {
+    const players = [
+      { name: "A", isBot: false },
+      { name: "B", isBot: true },
+    ]
+    const state = createGame(players, 7, { ovens: 6, ovenCapacity: 8 })
+    expect(state.ovens).toHaveLength(6)
+    expect(state.ovenCapacity).toBe(8)
+    expect(state.deck.length).toBe(72 - 14 - 6)
+    expect(createGame(players, 7).ovenCapacity).toBe(5)
+  })
+
+  it("falls back to the standard table for bad saved or sent options", () => {
+    expect(normalizeOptions(null)).toEqual({ ovens: 3, ovenCapacity: 5 })
+    expect(normalizeOptions({ ovens: 6, ovenCapacity: 9 })).toEqual({
+      ovens: 6,
+      ovenCapacity: 5,
+    })
+    expect(normalizeOptions({ ovens: "4", ovenCapacity: 3.5 })).toEqual({
+      ovens: 3,
+      ovenCapacity: 5,
+    })
+  })
+
+  it("rejects ovens and burn limits out of range", () => {
+    const players = [
+      { name: "A", isBot: false },
+      { name: "B", isBot: true },
+    ]
+    for (const options of [
+      { ovens: 2, ovenCapacity: 5 },
+      { ovens: 7, ovenCapacity: 5 },
+      { ovens: 3, ovenCapacity: 2 },
+      { ovens: 3, ovenCapacity: 9 },
+    ]) {
+      expect(() => createGame(players, 7, options)).toThrow()
+    }
+  })
 })
 
 describe("playing pastries", () => {
@@ -181,6 +221,43 @@ describe("playing pastries", () => {
     expect(
       fail(state, { type: "playNumber", player: 0, cardId: n(6).id, oven: 0 }),
     ).toBe("tooManyCards")
+  })
+
+  it("burns an oven at the chosen limit", () => {
+    const oven = [n(13, "bagel"), n(2, "bagel")]
+    const short = setup([[n(5, "bagel"), n(9)], [n(2)]], [oven, [], []])
+    short.ovenCapacity = 3
+    const burned = run(short, {
+      type: "playNumber",
+      player: 0,
+      cardId: n(5, "bagel").id,
+      oven: 0,
+    })
+    expect(burned.ovens[0].cards).toEqual([])
+    expect(burned.stats.players[0].burns).toBe(1)
+
+    const long = setup([[n(5, "bagel"), n(9)], [n(2)]], [oven, [], []])
+    long.ovenCapacity = 4
+    const kept = run(long, {
+      type: "playNumber",
+      player: 0,
+      cardId: n(5, "bagel").id,
+      oven: 0,
+    })
+    expect(kept.ovens[0].cards).toHaveLength(3)
+  })
+
+  it("burns an oven at five cards when the host sends no limit", () => {
+    const oven = [n(13, "bagel"), n(2, "bagel"), n(3, "bagel"), n(4, "bagel")]
+    const state = setup([[n(5, "bagel"), n(9)], [n(2)]], [oven, [], []])
+    delete state.ovenCapacity
+    const next = run(state, {
+      type: "playNumber",
+      player: 0,
+      cardId: n(5, "bagel").id,
+      oven: 0,
+    })
+    expect(next.ovens[0].cards).toEqual([])
   })
 
   it("burns an oven at five cards and gives the player two penalty cards", () => {

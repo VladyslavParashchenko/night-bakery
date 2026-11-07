@@ -1,9 +1,11 @@
 import type { DataConnection, Peer } from "peerjs"
-import { viewFor } from "$lib/game/engine"
+import { normalizeOptions, viewFor } from "$lib/game/engine"
 import {
+  DEFAULT_OPTIONS,
   MAX_PLAYERS,
   type Action,
   type GameError,
+  type GameOptions,
   type GameState,
   type PlayerSetup,
 } from "$lib/game/types"
@@ -26,13 +28,16 @@ export type RoomProblem =
   "notFound" | "full" | "started" | "hostLeft" | "network"
 
 type GuestMessage =
-  | { type: "hello"; name: string }
+  // `tables` says the guest can play a table with other ovens than the
+  // standard ones; older versions leave it out.
+  | { type: "hello"; name: string; tables?: boolean }
   | { type: "action"; action: Action }
   | { type: "ready" }
   | { type: "ping" }
 
 type HostMessage =
-  | { type: "lobby"; names: string[] }
+  // Older hosts send no options: their table is always the standard one.
+  | { type: "lobby"; names: string[]; options?: GameOptions }
   | { type: "state"; state: GameState; me: number }
   | { type: "error"; error: GameError }
   | { type: "ready"; seats: number[] }
@@ -53,6 +58,7 @@ type Guest = {
   name: string
   seat: number | null
   lastSeen: number
+  tables: boolean
 }
 
 function newCode() {
@@ -84,6 +90,11 @@ class Room {
   role = $state<"host" | "guest" | null>(null)
   code = $state("")
   names = $state<string[]>([])
+  // The table the host will start; guests see it in the lobby.
+  options = $state<GameOptions>({ ...DEFAULT_OPTIONS })
+  // Guests on an older version, which would draw a custom table as the
+  // standard one (host only).
+  outdated = $state<string[]>([])
   problem = $state<RoomProblem | null>(null)
   // Seats whose players asked for a rematch since the last game ended.
   ready = $state<number[]>([])
@@ -95,11 +106,12 @@ class Room {
   // Bumped by leave(), so a peer that loads after leaving is discarded.
   #session = 0
 
-  async host(name: string) {
+  async host(name: string, options: GameOptions = DEFAULT_OPTIONS) {
     this.leave()
     const session = this.#session
     this.problem = null
     this.role = "host"
+    this.options = normalizeOptions(options)
     this.status = "connecting"
     this.names = [cleanName(name)]
     const code = newCode()
@@ -123,7 +135,7 @@ class Room {
     peer.on("error", (error) => {
       if (this.#peer !== peer) return
       // Someone already holds this code; try another.
-      if (error.type === "unavailable-id") this.host(name)
+      if (error.type === "unavailable-id") this.host(name, options)
       // Once open, the server is only needed to let new guests in.
       else if (this.status === "connecting") this.#fail("network")
     })
@@ -157,6 +169,7 @@ class Room {
         conn.send({
           type: "hello",
           name: cleanName(name),
+          tables: true,
         } satisfies GuestMessage)
       })
       conn.on("data", (data) => {
@@ -179,6 +192,13 @@ class Room {
     })
   }
 
+  // Host only: guests are told at once.
+  setOptions(options: GameOptions) {
+    if (this.role !== "host") return
+    this.options = normalizeOptions(options)
+    this.#syncLobby()
+  }
+
   start(bots: PlayerSetup[]) {
     if (this.role !== "host" || this.status !== "lobby") return
     this.#guests.forEach((guest, i) => (guest.seat = i + 1))
@@ -187,11 +207,14 @@ class Room {
       publish: (state) => this.#publish(state),
       close: () => this.leave(),
     })
-    game.start([
-      { name: this.names[0], isBot: false },
-      ...this.#guests.map((guest) => ({ name: guest.name, isBot: false })),
-      ...bots,
-    ])
+    game.start(
+      [
+        { name: this.names[0], isBot: false },
+        ...this.#guests.map((guest) => ({ name: guest.name, isBot: false })),
+        ...bots,
+      ],
+      this.options,
+    )
     this.status = "playing"
   }
 
@@ -226,6 +249,8 @@ class Room {
     this.code = ""
     this.names = []
     this.ready = []
+    this.options = { ...DEFAULT_OPTIONS }
+    this.outdated = []
     if (game.link) game.quit()
   }
 
@@ -292,6 +317,7 @@ class Room {
         name: cleanName(message.name),
         seat: null,
         lastSeen: Date.now(),
+        tables: message.tables === true,
       })
       this.#syncLobby()
       return
@@ -335,10 +361,12 @@ class Room {
 
   #syncLobby() {
     this.names = [this.names[0], ...this.#guests.map((g) => g.name)]
+    this.outdated = this.#guests.filter((g) => !g.tables).map((g) => g.name)
     for (const guest of this.#guests) {
       guest.conn.send({
         type: "lobby",
         names: this.names,
+        options: this.options,
       } satisfies HostMessage)
     }
   }
@@ -370,6 +398,7 @@ class Room {
     switch (message.type) {
       case "lobby":
         this.names = message.names
+        this.options = normalizeOptions(message.options)
         this.status = "lobby"
         return
       case "state":

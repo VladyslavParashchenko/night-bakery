@@ -2,12 +2,13 @@
   import { Lock } from "lucide-svelte"
   import GameCard from "$lib/components/GameCard.svelte"
   import { flyIn, type LaunchPoint } from "$lib/components/card-flight"
-  import { OVEN_CAPACITY, type Oven } from "$lib/game/types"
+  import type { Oven } from "$lib/game/types"
   import { m } from "$lib/i18n/messages"
 
   let {
     oven,
     index,
+    capacity,
     lockedByName,
     target = false,
     over = false,
@@ -17,6 +18,8 @@
   }: {
     oven: Oven
     index: number
+    // Cards that burn the oven.
+    capacity: number
     lockedByName: string | null
     target?: boolean
     over?: boolean
@@ -33,9 +36,9 @@
   class="oven"
   class:target
   class:over
-  class:hot={oven.cards.length === OVEN_CAPACITY - 1}
+  class:hot={oven.cards.length === capacity - 1}
   class:cold={oven.cards.length === 0}
-  style:--heat={oven.cards.length / (OVEN_CAPACITY - 1)}
+  style:--heat={oven.cards.length / (capacity - 1)}
   data-oven={index}
   disabled={!clickable}
   aria-label={m.ovenLabel({ number: index + 1 })}
@@ -58,7 +61,7 @@
         <span class="flame" style:--i={i}></span>
       {/each}
     </div>
-    <div class="stack">
+    <div class="stack" style:--count={oven.cards.length}>
       {#each oven.cards as card (card.id)}
         <div
           class="stacked"
@@ -73,11 +76,11 @@
   </div>
 
   <div class="embers" aria-hidden="true">
-    {#each [...Array(OVEN_CAPACITY).keys()] as i (i)}
+    {#each [...Array(capacity).keys()] as i (i)}
       <span
         class="ember"
         class:lit={i < oven.cards.length}
-        class:last={i === OVEN_CAPACITY - 1}
+        class:last={i === capacity - 1}
       ></span>
     {/each}
   </div>
@@ -233,13 +236,28 @@
        left edge. */
     justify-content: safe center;
     min-height: 7.25rem;
+    /* Lets a long stack squeeze its overlap to fit the oven's width. */
+    container-type: inline-size;
   }
   .stacked {
     position: relative;
     filter: drop-shadow(0 0.25rem 0.375rem rgb(0 0 0 / 0.45));
   }
+  /* Cards overlap by --overlap, and more when the stack would not otherwise
+     fit (a burn limit up to 8 leaves up to 7 cards in an oven), but never by
+     more than --overlap-max, so a strip of every card stays in sight; past
+     that the stack overflows. --card-w must match GameCard's sm width. */
+  .stack {
+    --card-w: 4.75rem;
+    --overlap: -2.75rem;
+    --overlap-max: -3.5rem;
+  }
   .stacked:not(:first-child) {
-    margin-left: -2.75rem;
+    margin-left: clamp(
+      var(--overlap-max),
+      calc((100cqw - var(--card-w)) / (var(--count) - 1) - var(--card-w)),
+      var(--overlap)
+    );
   }
   .empty {
     width: 100%;
@@ -248,7 +266,7 @@
     text-align: center;
     opacity: 0.75;
   }
-  /* Five embers on the hearth: one lights up per card, and the last one
+  /* One ember per card the oven holds: one lights up per card, and the last one
      flickers while the oven is a card away from burning. */
   .embers {
     display: flex;
@@ -310,11 +328,12 @@
       border-width: 0.1875rem 0.1875rem 0.125rem;
       border-radius: 50% 50% 0.5rem 0.5rem / 1.75rem 1.75rem 0.5rem 0.5rem;
     }
+    /* Phone cards are 3.75rem wide and already overlap as far as they can. */
     .stack {
+      --card-w: 3.75rem;
+      --overlap: -3.25rem;
+      --overlap-max: -3.25rem;
       min-height: 5.5rem;
-    }
-    .stacked:not(:first-child) {
-      margin-left: -3.25rem;
     }
     .embers {
       gap: 0.1875rem;
