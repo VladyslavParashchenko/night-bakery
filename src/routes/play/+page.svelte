@@ -204,13 +204,19 @@
       {/each}
     </section>
 
+    <!-- The banner floats over the top of the screen; the line here keeps
+         its height, so nothing below it jumps. -->
+    {#if pending?.kind === "scorch"}
+      <ScorchBanner
+        offenderName={state.players[pending.offender].name}
+        isHumanOffender={pending.offender === game.me}
+        onslap={() => game.dispatch({ type: "slap", player: game.me })}
+      />
+    {/if}
+
     <section class="status">
       {#if pending?.kind === "scorch"}
-        <ScorchBanner
-          offenderName={state.players[pending.offender].name}
-          isHumanOffender={pending.offender === game.me}
-          onslap={() => game.dispatch({ type: "slap", player: game.me })}
-        />
+        <p class="hint">{m.scorchWaiting()}</p>
       {:else if pending?.kind === "carousel"}
         <p class="hint strong">
           {carouselPick ? m.hintCarousel() : m.hintCarouselWait()}
@@ -484,7 +490,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 50;
+    z-index: var(--z-drag);
     pointer-events: none;
     filter: drop-shadow(0 1rem 1.5rem rgb(58 31 15 / 0.35));
   }
@@ -493,7 +499,7 @@
     right: 0;
     bottom: 1rem;
     left: 0;
-    z-index: 40;
+    z-index: var(--z-results);
     display: flex;
     justify-content: center;
     pointer-events: none;

@@ -48,6 +48,7 @@
   "hintCarousel": "Carousel! Pick a card to pass to your left",
   "hintCarouselWait": "Waiting for the others to choose…",
   "scorchTitle": "Scorched!",
+  "scorchWaiting": "Who will spot it first?",
   "scorchBotPlayed": "{name} matched the top card's value. Be quick!",
   "scorchYouPlayed": "You matched the top card's value… hope nobody notices!",
   "scorchButton": "🔥 Scorched!",

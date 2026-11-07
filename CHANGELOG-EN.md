@@ -1,5 +1,12 @@
 # What's new
 
+## 1.9.2 — 7 November 2026
+
+### Fixed
+
+- The “Scorched!” banner pops up at the top of the screen over the table
+  instead of pushing it down, so the ovens and your hand no longer jump.
+
 ## 1.9.1 — 7 November 2026
 
 ### Fixed

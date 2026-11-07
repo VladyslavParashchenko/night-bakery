@@ -28,6 +28,14 @@
   --color-suit-donut: #ffd803;
 }
 
+/* Stacking order of the play page's floating layers, lowest first; dialogs
+   (Modal) sit above all of them. */
+:root {
+  --z-results: 40;
+  --z-scorch: 45;
+  --z-drag: 50;
+}
+
 /* Registered so ovens can animate it: the glow and flames follow it. */
 @property --heat {
   syntax: "<number>";

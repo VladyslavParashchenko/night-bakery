@@ -27,15 +27,32 @@
 </div>
 
 <style>
+  /* Floats over the top of the screen instead of pushing the table down,
+     and leaves the ovens with the matching cards in sight. */
   .scorch {
+    --shadow: 0 1rem 2.5rem rgb(0 0 0 / 0.35);
+    position: fixed;
+    top: max(0.75rem, env(safe-area-inset-top));
+    left: 50%;
+    z-index: var(--z-scorch);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0.875rem 1rem;
-    background: rgb(242 95 76 / 0.15);
+    width: min(calc(100% - 2rem), 26rem);
+    padding: 1rem 1.125rem;
+    color: var(--color-oven-text);
+    background: color-mix(
+      in srgb,
+      var(--color-oven-fire) 15%,
+      var(--color-oven-surface)
+    );
     border: 0.125rem solid var(--color-oven-fire);
     border-radius: 1rem;
-    animation: pulse 0.6s ease-in-out infinite alternate;
+    box-shadow: var(--shadow);
+    transform: translateX(-50%);
+    animation:
+      appear 0.18s ease-out,
+      pulse 0.6s ease-in-out infinite alternate;
   }
   strong {
     font-size: 1.1rem;
@@ -55,9 +72,17 @@
       transform: scaleX(0);
     }
   }
+  @keyframes appear {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-0.75rem);
+    }
+  }
   @keyframes pulse {
     to {
-      box-shadow: 0 0 1.5rem rgb(242 95 76 / 0.45);
+      box-shadow:
+        var(--shadow),
+        0 0 1.5rem color-mix(in srgb, var(--color-oven-fire) 55%, transparent);
     }
   }
 </style>
