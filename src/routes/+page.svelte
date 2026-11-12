@@ -50,7 +50,6 @@
         height="720"
       />
     </h1>
-    <p>{m.appTagline()}</p>
   </div>
 
   <section class="panel">
@@ -114,62 +113,73 @@
     </div>
     <SoundToggle />
     <ThemeToggle />
+    <button
+      type="button"
+      class="version"
+      aria-label={m.changelogOpen({ version: APP_VERSION })}
+      onclick={() => (changelogOpen = true)}
+    >
+      v{APP_VERSION}
+    </button>
   </div>
-
-  <button
-    type="button"
-    class="version"
-    aria-label={m.changelogOpen({ version: APP_VERSION })}
-    onclick={() => (changelogOpen = true)}
-  >
-    v{APP_VERSION}
-  </button>
 </main>
 
 <ChangelogDialog open={changelogOpen} onclose={() => (changelogOpen = false)} />
 
 <style>
+  /* The whole menu fits the window: it is centred on tall screens, and on
+     short ones the logo gives up height (it is the only part that may
+     shrink). */
   .menu {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.75rem;
+    /* Safe, so a screen too short even for the smallest logo scrolls from
+       the top instead of cutting it off. */
+    justify-content: safe center;
+    gap: 1rem;
     max-width: 27.5rem;
+    height: 100dvh;
     margin: 0 auto;
-    /* A small top gap so the whole menu fits on short screens. */
-    padding: clamp(0.25rem, 1.5dvh, 0.75rem) 1rem 1rem;
+    padding: 0.75rem 1rem;
   }
-  .hero {
+  .menu > :global(*) {
+    flex-shrink: 0;
+  }
+  .menu > .hero {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 5rem;
     text-align: center;
   }
-  .logo {
-    display: block;
-    width: min(100%, 20rem);
-    height: auto;
-    margin: 0 auto;
-  }
-  /* The desktop UI scales up, so cap the logo by height to fit the menu. */
-  @media (min-width: 1280px) {
-    .logo {
-      width: min(20rem, 24dvh);
-    }
-  }
   h1 {
-    margin: 0.5rem 0;
+    display: flex;
+    flex: 0 1 auto;
+    justify-content: center;
+    min-height: 5rem;
+    margin: 0;
     font-size: 2.4rem;
     font-weight: 800;
     color: var(--color-oven-text);
   }
-  .hero p {
-    margin: 0;
-    color: var(--color-oven-muted);
+  /* Fills the height h1 is left with, up to 20rem. */
+  .logo {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: 100%;
+    max-height: 20rem;
+    object-fit: contain;
   }
   .panel {
     display: flex;
     flex-direction: column;
-    gap: 1.125rem;
+    gap: 0.75rem;
     width: 100%;
-    padding: 1.5rem;
+    padding: 1.125rem 1.25rem 1rem;
     background: var(--color-oven-surface);
     border: 1px solid var(--color-oven-border);
     border-radius: 1.5rem;
@@ -177,7 +187,7 @@
   .field {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.375rem;
     font-weight: 700;
   }
   input {
@@ -195,6 +205,12 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
+  }
+  .choices :global(.ui-button) {
+    min-height: 2.75rem;
+  }
+  .panel > :global(.ui-button.large) {
+    min-height: 3.25rem;
   }
   .rules-link {
     color: var(--color-oven-text);

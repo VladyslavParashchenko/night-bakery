@@ -2,7 +2,7 @@
   import Button from "$lib/components/ui/Button.svelte"
   import Modal from "$lib/components/ui/Modal.svelte"
   import { PASTRIES, type Pastry } from "$lib/game/types"
-  import { PASTRY_EMOJI, pastryName } from "$lib/i18n/game-labels"
+  import { pastryName } from "$lib/i18n/game-labels"
   import { m } from "$lib/i18n/messages"
 
   let {
@@ -17,7 +17,10 @@
 </script>
 
 <Modal {open} {onclose}>
-  <h2>👨‍🍳 {m.chefTitle()}</h2>
+  <h2>
+    <img class="chef-art" src="/cards/chef.webp" alt="" />
+    {m.chefTitle()}
+  </h2>
   <p class="hint">{m.chefHint()}</p>
 
   <div class="colours">
@@ -27,7 +30,7 @@
         class={`colour ${pastry}`}
         onclick={() => onconfirm(pastry)}
       >
-        <span class="emoji" aria-hidden="true">{PASTRY_EMOJI[pastry]}</span>
+        <img class="pastry-art" src={`/cards/${pastry}.webp`} alt="" />
         {pastryName(pastry)}
       </button>
     {/each}
@@ -40,7 +43,16 @@
 
 <style>
   h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin: 0 0 0.75rem;
+  }
+  .chef-art {
+    width: 2.25rem;
+    height: 2.25rem;
+    object-fit: contain;
+    flex-shrink: 0;
   }
   .hint {
     margin: 0 0 1rem;
@@ -70,8 +82,11 @@
     outline: 0.125rem solid var(--color-oven-text);
     outline-offset: 0.125rem;
   }
-  .emoji {
-    font-size: 1.6rem;
+  .pastry-art {
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: contain;
+    flex-shrink: 0;
   }
   .croissant {
     background: var(--color-suit-croissant);
@@ -85,6 +100,25 @@
   }
   .donut {
     background: var(--color-suit-donut);
+  }
+  .colour {
+    background-image:
+      radial-gradient(
+        ellipse at 50% 40%,
+        rgb(255 244 205 / 32%),
+        transparent 60%
+      ),
+      linear-gradient(
+        145deg,
+        rgb(255 255 255 / 14%),
+        transparent 45%,
+        rgb(58 31 15 / 16%)
+      ),
+      repeating-linear-gradient(
+        45deg,
+        transparent 0 0.55rem,
+        rgb(58 31 15 / 4%) 0.55rem 0.6rem
+      );
   }
   .actions {
     display: flex;

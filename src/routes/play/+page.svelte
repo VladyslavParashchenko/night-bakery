@@ -2,7 +2,7 @@
   import { onDestroy } from "svelte"
   import { goto } from "$app/navigation"
   import GameCard from "$lib/components/GameCard.svelte"
-  import GameLog from "$lib/components/GameLog.svelte"
+  import LogDialog from "$lib/components/LogDialog.svelte"
   import OpponentSeat from "$lib/components/OpponentSeat.svelte"
   import OvenView from "$lib/components/OvenView.svelte"
   import { CardDrag } from "$lib/components/card-drag.svelte"
@@ -41,6 +41,7 @@
   let spy = $state<{ cardId: string; oven: number } | null>(null)
   let chef = $state<{ cardId: string; oven: number } | null>(null)
   let rulesOpen = $state(false)
+  let logOpen = $state(false)
   // The results are tucked away so the final table can be seen.
   let peeking = $state(false)
   let resultsBar = $state<HTMLElement>()
@@ -193,6 +194,7 @@
       deckCount={state.deck.length}
       discardCount={state.discard.length}
       onrules={() => (rulesOpen = true)}
+      onlog={() => (logOpen = true)}
     />
 
     <section class="opponents">
@@ -233,10 +235,16 @@
       {/if}
     </section>
 
-    <!-- On a phone four ovens make a 2 × 2 square instead of 3 + 1. -->
+    <!-- Ovens stand in one row where the screen is wide enough; otherwise
+         in rows of three. On a phone four make a 2 × 2 square, or one row
+         when the screen is too short for two. -->
     <section
       class="ovens"
-      style:--phone-columns={state.ovens.length === 4 ? 2 : 3}
+      style:--ovens={state.ovens.length}
+      style:--medium-columns={state.ovens.length <= 4 ? state.ovens.length : 3}
+      style:--phone-columns={state.ovens.length === 4
+        ? 2
+        : Math.min(state.ovens.length, 3)}
     >
       {#each state.ovens as oven, index (index)}
         <OvenView
@@ -260,21 +268,33 @@
     </section>
 
     <section class="me" class:active={myTurn}>
+      <!-- Name, progress and the end turn button share one row. -->
       <div class="me-head">
-        <div>
+        <div class="me-info">
           <strong>{me.name}</strong>
           <span class="muted">{m.cardsCount({ count: me.hand.length })}</span>
+          {#if myTurn}
+            <span class="muted">
+              {m.turnProgress({
+                played: state.turn.cardsPlayed,
+              })}
+            </span>
+          {/if}
         </div>
-        {#if myTurn}
-          <span class="muted">
-            {m.turnProgress({
-              played: state.turn.cardsPlayed,
-            })}
-          </span>
-        {/if}
+        <Button
+          disabled={!canEndTurn(state, game.me)}
+          onclick={() => {
+            selectedId = null
+            game.dispatch({ type: "endTurn", player: game.me })
+          }}
+        >
+          {myTurn && me.hand.length > 0 && cardsShort(state.turn) > 0
+            ? m.actionEndTurnDraw({ count: cardsShort(state.turn) })
+            : m.actionEndTurn()}
+        </Button>
       </div>
 
-      <div class="hand">
+      <div class="hand" style:--count={hand.length}>
         {#each hand as card (card.id)}
           <div
             class="hand-card"
@@ -311,23 +331,7 @@
           </div>
         {/each}
       </div>
-
-      <div class="actions">
-        <Button
-          disabled={!canEndTurn(state, game.me)}
-          onclick={() => {
-            selectedId = null
-            game.dispatch({ type: "endTurn", player: game.me })
-          }}
-        >
-          {myTurn && me.hand.length > 0 && cardsShort(state.turn) > 0
-            ? m.actionEndTurnDraw({ count: cardsShort(state.turn) })
-            : m.actionEndTurn()}
-        </Button>
-      </div>
     </section>
-
-    <GameLog {state} />
   </main>
 
   {#if drag.card}
@@ -386,6 +390,7 @@
   {/if}
 
   <RulesDialog open={rulesOpen} onclose={() => (rulesOpen = false)} />
+  <LogDialog open={logOpen} {state} onclose={() => (logOpen = false)} />
 
   {#if pending?.kind === "gameOver"}
     {#if peeking}
@@ -413,13 +418,18 @@
 {/if}
 
 <style>
+  /* The whole table fits the window: the ovens take whatever height is
+     left after the seats, the status line and the hand. On a screen too
+     small even for that, the page scrolls. */
   .table {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.125rem;
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: 0.75rem;
     max-width: 80rem;
+    min-height: 100dvh;
     margin: 0 auto;
-    padding: 1rem 1rem 2.5rem;
+    padding: 0.75rem 1rem 1rem;
   }
   /* Taps and drags on the table should not flash the text-selection
      highlight. */
@@ -434,12 +444,13 @@
   .status {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    min-height: 2rem;
+    justify-content: center;
+    min-height: 1.75rem;
   }
   .hint {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
+    line-height: 1.35;
     color: var(--color-oven-muted);
   }
   .hint.strong {
@@ -448,14 +459,20 @@
   }
   .ovens {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16.25rem, 1fr));
+    grid-template-columns: repeat(var(--medium-columns), minmax(0, 1fr));
+    align-items: center;
     gap: 1rem;
+  }
+  @media (min-width: 1200px) {
+    .ovens {
+      grid-template-columns: repeat(var(--ovens), minmax(0, 1fr));
+    }
   }
   .me {
     display: flex;
     flex-direction: column;
-    gap: 1.125rem;
-    padding: 1.125rem;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem 0.875rem;
     background: var(--color-oven-surface);
     border: 0.125rem solid var(--color-oven-border);
     border-radius: 1.25rem;
@@ -465,23 +482,57 @@
   }
   .me-head {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.75rem;
+  }
+  .me-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.125rem 0.75rem;
+    min-width: 0;
   }
   .me-head strong {
-    margin-right: 0.625rem;
     font-size: 1.25rem;
   }
   .muted {
     color: var(--color-oven-muted);
     font-size: 1rem;
   }
+  /* One row of cards: they spread out while there is room and overlap
+     more as the hand grows, always leaving the corner value of each in
+     sight. --card-w must match GameCard's width. Past that the row
+     scrolls sideways. */
   .hand {
+    --card-w: 6.25rem;
+    --spread: 0.75rem;
+    --peek: 1.75rem;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    padding-top: 1.125rem;
+    /* Scrolling sideways clips the row, so the padding leaves room for a
+       picked card lifted 1rem with its ring and shadow. */
+    padding: 1.5rem 0.25rem 0.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Only a very long hand scrolls; a thin bar lets a mouse reach the end,
+       since pressing a card starts a drag. */
+    scrollbar-width: thin;
+    container-type: inline-size;
+  }
+  .hand-card {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .hand-card:not(:first-child) {
+    margin-left: clamp(
+      calc(var(--peek) - var(--card-w)),
+      calc((100cqw - var(--card-w)) / (var(--count) - 1) - var(--card-w)),
+      var(--spread)
+    );
+  }
+  /* The picked card comes to the front. */
+  .hand-card:has(:global(.selected)) {
+    z-index: 1;
   }
   .hand-card.dragging {
     opacity: 0.3;
@@ -508,43 +559,55 @@
     pointer-events: auto;
     box-shadow: 0 0.75rem 2rem rgb(58 31 15 / 0.3);
   }
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-  /* Wide screens: the end turn button sits beside the hand, which saves a
-     row of height for a bigger table. */
-  @media (min-width: 1024px) {
-    .me {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: end;
-    }
-    .me-head {
-      grid-column: 1 / -1;
-    }
-  }
   @media (max-width: 600px) {
-    /* Seats shrink on phones, so two fit side by side. */
+    /* Seats shrink on phones, so up to four fit side by side. */
     .opponents {
-      grid-template-columns: repeat(auto-fit, minmax(7.75rem, 1fr));
-      gap: 0.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(4.75rem, 1fr));
+      gap: 0.375rem;
     }
     .ovens {
       grid-template-columns: repeat(var(--phone-columns), minmax(0, 1fr));
       gap: 0.5rem;
     }
+    .table {
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem 0.75rem;
+    }
+    .hint {
+      font-size: 0.95rem;
+    }
+    /* Two lines, so a long hint does not change the height. */
+    .status {
+      min-height: 2.6rem;
+    }
     .me {
-      gap: 0.875rem;
-      padding: 0.75rem;
+      padding: 0.5rem 0.625rem 0.625rem;
+    }
+    .me-head strong {
+      font-size: 1.05rem;
+    }
+    .muted {
+      font-size: 0.85rem;
     }
     .hand {
-      gap: 0.5rem;
+      --card-w: 4.375rem;
+      --spread: 0.375rem;
+      --peek: 1.5rem;
+      padding-top: 1.375rem;
     }
-    .actions {
-      display: grid;
+  }
+  @media (max-width: 600px) and (max-height: 759px) {
+    .ovens {
+      grid-template-columns: repeat(min(var(--ovens), 4), minmax(0, 1fr));
+      gap: 0.375rem;
+    }
+    /* Four in a row are narrow: trim the oven's padding so a card still
+       fits its chamber. */
+    .ovens :global(.oven) {
+      padding-inline: 0.25rem;
+    }
+    .ovens :global(.chamber) {
+      padding-inline: 0;
     }
   }
 </style>

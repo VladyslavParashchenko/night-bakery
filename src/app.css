@@ -34,6 +34,9 @@
   --z-results: 40;
   --z-scorch: 45;
   --z-drag: 50;
+  --bakery-glow: rgb(255 190 93 / 26%);
+  --bakery-glow-secondary: rgb(242 120 76 / 10%);
+  --bakery-pattern: rgb(122 78 42 / 5%);
 }
 
 /* Registered so ovens can animate it: the glow and flames follow it. */
@@ -53,6 +56,9 @@
     --color-oven-border: #4a3527;
     --color-oven-text: #fff8ed;
     --color-oven-muted: #c9ad95;
+    --bakery-glow: rgb(189 103 42 / 20%);
+    --bakery-glow-secondary: rgb(113 61 38 / 15%);
+    --bakery-pattern: rgb(255 220 174 / 4%);
   }
 }
 :root[data-theme="dark"] {
@@ -63,6 +69,9 @@
   --color-oven-border: #4a3527;
   --color-oven-text: #fff8ed;
   --color-oven-muted: #c9ad95;
+  --bakery-glow: rgb(189 103 42 / 20%);
+  --bakery-glow-secondary: rgb(113 61 38 / 15%);
+  --bakery-pattern: rgb(255 220 174 / 4%);
 }
 
 @layer base {
@@ -71,8 +80,8 @@
     color: var(--color-oven-text);
   }
   /* Sizes are in rem, so the whole UI grows with the screen: in step with the
-     width from 1280px, but only as far as the table (about 47rem tall) still
-     fits in the window's height. */
+     width from 1280px, but only as far as the table still fits in the
+     window's height (its ovens give up height first). */
   @media (min-width: 1280px) {
     html {
       font-size: clamp(100%, min(1.25vw, 2.1vh), 150%);
@@ -82,6 +91,25 @@
     margin: 0;
     min-height: 100dvh;
     font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+    background-color: var(--color-oven-bg);
+    background-image:
+      radial-gradient(ellipse at 50% -10%, var(--bakery-glow), transparent 60%),
+      radial-gradient(
+        ellipse at 100% 100%,
+        var(--bakery-glow-secondary),
+        transparent 55%
+      ),
+      repeating-linear-gradient(
+        45deg,
+        var(--bakery-pattern) 0 1px,
+        transparent 1px 18px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        var(--bakery-pattern) 0 1px,
+        transparent 1px 18px
+      );
+    background-attachment: fixed;
   }
   h1 {
     font-size: 2rem;

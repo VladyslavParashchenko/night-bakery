@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronRight, SlidersHorizontal, X } from "lucide-svelte"
+  import { ChevronRight, SlidersHorizontal } from "lucide-svelte"
   import Button from "$lib/components/ui/Button.svelte"
   import Modal from "$lib/components/ui/Modal.svelte"
   import {
@@ -71,21 +71,7 @@
   </button>
 {/if}
 
-<Modal {open} onclose={() => (open = false)}>
-  {#snippet header()}
-    <div class="head">
-      <h2>{m.tableOptions()}</h2>
-      <button
-        type="button"
-        class="close"
-        aria-label={m.close()}
-        onclick={() => (open = false)}
-      >
-        <X size="1.375rem" />
-      </button>
-    </div>
-  {/snippet}
-
+<Modal {open} title={m.tableOptions()} onclose={() => (open = false)}>
   <p class="hint">{m.tableOptionsHint()}</p>
 
   <!-- A live sketch of the table: one arch per oven, one ember per card
@@ -213,30 +199,6 @@
   .open :global(.chevron) {
     flex-shrink: 0;
     color: var(--color-oven-muted);
-  }
-  .head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  h2 {
-    margin: 0;
-    color: var(--color-oven-text);
-  }
-  .close {
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    color: var(--color-oven-muted);
-    background: transparent;
-    border: none;
-    border-radius: 62.4375rem;
-    cursor: pointer;
-  }
-  .close:hover {
-    color: var(--color-oven-text);
-    background: var(--color-oven-surface-raised);
   }
   .hint {
     margin: 0 0 1rem;

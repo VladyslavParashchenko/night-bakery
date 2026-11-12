@@ -6,6 +6,7 @@
 
   const VISIBLE_ENTRIES = 30
 
+  // Shown in LogDialog, which gives it the title and the frame.
   let { state }: { state: GameState } = $props()
 
   // Keyed by position in the full log so rows stay stable.
@@ -20,46 +21,30 @@
   )
 </script>
 
-<section class="log">
-  <h2>{m.logTitle()}</h2>
-  {#if rows.length === 0}
-    <p class="empty">{m.logEmpty()}</p>
-  {:else}
-    <ol>
-      {#each rows as { index, view }, i (index)}
-        <li
-          class={`tone-${view.tone}`}
-          class:latest={i === 0}
-          class:mine={view.player === game.me}
-        >
-          {#if view.card}
-            <span class={`chip ${view.card.pastry}`} aria-hidden="true">
-              {view.card.value}
-            </span>
-          {:else}
-            <span class="chip icon" aria-hidden="true">{view.icon}</span>
-          {/if}
-          <span class="text">{view.text}</span>
-        </li>
-      {/each}
-    </ol>
-  {/if}
-</section>
+{#if rows.length === 0}
+  <p class="empty">{m.logEmpty()}</p>
+{:else}
+  <ol>
+    {#each rows as { index, view }, i (index)}
+      <li
+        class={`tone-${view.tone}`}
+        class:latest={i === 0}
+        class:mine={view.player === game.me}
+      >
+        {#if view.card}
+          <span class={`chip ${view.card.pastry}`} aria-hidden="true">
+            {view.card.value}
+          </span>
+        {:else}
+          <span class="chip icon" aria-hidden="true">{view.icon}</span>
+        {/if}
+        <span class="text">{view.text}</span>
+      </li>
+    {/each}
+  </ol>
+{/if}
 
 <style>
-  .log {
-    padding: 1rem 1.125rem;
-    background: var(--color-oven-surface);
-    border: 1px solid var(--color-oven-border);
-    border-radius: 1rem;
-  }
-  h2 {
-    margin: 0 0 0.625rem;
-    font-size: 0.9rem;
-    color: var(--color-oven-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
   .empty {
     margin: 0;
     color: var(--color-oven-muted);
@@ -68,11 +53,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    max-height: 20rem;
     margin: 0;
     padding: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
     list-style: none;
   }
   li {

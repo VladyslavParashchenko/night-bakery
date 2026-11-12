@@ -1,20 +1,24 @@
 <script lang="ts">
+  import { X } from "lucide-svelte"
   import type { Snippet } from "svelte"
+  import { m } from "$lib/i18n/messages"
+
   let {
     open,
     hidden = false,
     wide = false,
+    title,
     onclose,
-    header,
     children,
   }: {
     open: boolean
     // Out of sight but still mounted, so its state and animations survive.
     hidden?: boolean
     wide?: boolean
+    // With a title, a header with it and a close button stays in place and
+    // only the body scrolls.
+    title?: string
     onclose?: () => void
-    // With a header, only the body scrolls and the header stays in place.
-    header?: Snippet
     children: Snippet
   } = $props()
   function close(event: MouseEvent) {
@@ -38,20 +42,33 @@
     role="presentation"
     onclick={close}
   >
-    <section
+    <div
       class="ui-modal"
       class:wide
-      class:split={header !== undefined}
+      class:split={title !== undefined}
       role="dialog"
       aria-modal="true"
+      aria-label={title}
     >
-      {#if header}
-        <header class="ui-modal-header">{@render header()}</header>
+      {#if title !== undefined}
+        <header class="ui-modal-header">
+          <h2>{title}</h2>
+          {#if onclose}
+            <button
+              type="button"
+              class="ui-modal-close"
+              aria-label={m.close()}
+              onclick={onclose}
+            >
+              <X size="1.375rem" />
+            </button>
+          {/if}
+        </header>
         <div class="ui-modal-body">{@render children()}</div>
       {:else}
         {@render children()}
       {/if}
-    </section>
+    </div>
   </div>{/if}
 
 <style>
@@ -90,9 +107,36 @@
     padding: 0;
   }
   .ui-modal-header {
+    display: flex;
     flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--color-oven-border);
+  }
+  .ui-modal-header h2 {
+    margin: 0;
+    color: var(--color-oven-text);
+  }
+  .ui-modal-close {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--color-oven-muted);
+    background: transparent;
+    border: none;
+    border-radius: 62.4375rem;
+    cursor: pointer;
+  }
+  .ui-modal-close:hover {
+    color: var(--color-oven-text);
+    background: var(--color-oven-surface-raised);
+  }
+  .ui-modal-close:focus-visible {
+    outline: 0.125rem solid var(--color-oven-accent);
   }
   .ui-modal-body {
     flex: 1;

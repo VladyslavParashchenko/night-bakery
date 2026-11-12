@@ -1,7 +1,6 @@
 <script lang="ts">
   import { PASTRIES, type VisibleCard } from "$lib/game/types"
   import {
-    COOK_EMOJI,
     PASTRY_EMOJI,
     cookHint,
     cookName,
@@ -31,6 +30,7 @@
         ? `${cookName(card.cook)} (${pastryName(card.pastry)}) — ${cookHint(card.cook)}`
         : `${cookName(card.cook)} — ${cookHint(card.cook)}`,
   )
+  const artwork = $derived(card.type === "number" ? card.pastry : card.cook)
 </script>
 
 <svelte:element
@@ -50,13 +50,23 @@
 >
   {#if card.type === "number"}
     <span class="corner">{card.value}</span>
-    <span class="emoji">{PASTRY_EMOJI[card.pastry]}</span>
+    <img
+      class="artwork"
+      src={`/cards/${artwork}.webp`}
+      alt=""
+      draggable="false"
+    />
     <span class="value">{card.value}</span>
   {:else}
     {#if card.pastry}
       <span class="corner">{PASTRY_EMOJI[card.pastry]}</span>
     {/if}
-    <span class="emoji">{COOK_EMOJI[card.cook]}</span>
+    <img
+      class="artwork"
+      src={`/cards/${artwork}.webp`}
+      alt=""
+      draggable="false"
+    />
     <span class="cook-name">{cookName(card.cook)}</span>
     {#if !card.pastry}
       <span class="suits" aria-hidden="true">
@@ -80,7 +90,7 @@
     height: 9rem;
     padding: 0.5rem;
     color: var(--color-ink);
-    border: 0.125rem solid rgb(58 31 15 / 0.15);
+    border: 0;
     border-radius: 0.875rem;
     box-shadow: 0 0.375rem 0.875rem rgb(58 31 15 / 0.2);
     user-select: none;
@@ -103,13 +113,24 @@
   }
   .game-card.selected {
     transform: translateY(-1rem);
-    border-color: var(--color-ink);
     box-shadow:
       0 0 0 0.1875rem var(--color-oven-accent),
       0 0.75rem 1.375rem rgb(58 31 15 / 0.3);
   }
-  .game-card.dimmed {
-    opacity: 0.45;
+  /* Faded by a veil in the colour around it (--card-veil, the panel colour
+     by default) rather than by opacity, so a dimmed card in an overlapping
+     hand does not show the cards beneath it. */
+  .game-card.dimmed::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: color-mix(
+      in srgb,
+      var(--card-veil, var(--color-oven-surface)) 55%,
+      transparent
+    );
+    pointer-events: none;
   }
   .croissant {
     background: var(--color-suit-croissant);
@@ -124,14 +145,44 @@
   .donut {
     background: var(--color-suit-donut);
   }
-  .cook {
-    border: 0.25rem solid var(--color-ink);
-  }
   /* A chef in hand has no colour yet: dark card with the four suit dots. */
   .wild {
     color: var(--color-ink-light);
     background: var(--color-ink);
-    border-color: var(--color-oven-accent);
+  }
+  /* A little printed-paper texture and a warm spotlight behind the artwork. */
+  .game-card {
+    background-image:
+      radial-gradient(
+        ellipse at 50% 38%,
+        rgb(255 244 205 / 32%),
+        transparent 55%
+      ),
+      linear-gradient(
+        145deg,
+        rgb(255 255 255 / 14%),
+        transparent 45%,
+        rgb(58 31 15 / 16%)
+      ),
+      repeating-linear-gradient(
+        45deg,
+        transparent 0 0.55rem,
+        rgb(58 31 15 / 4%) 0.55rem 0.6rem
+      );
+  }
+  .game-card.wild {
+    background-image:
+      radial-gradient(
+        ellipse at 50% 38%,
+        rgb(255 184 76 / 25%),
+        transparent 58%
+      ),
+      linear-gradient(
+        145deg,
+        rgb(255 235 193 / 10%),
+        transparent 55%,
+        rgb(0 0 0 / 22%)
+      );
   }
   .suits {
     display: flex;
@@ -166,12 +217,14 @@
     font-size: 1rem;
     font-weight: 800;
   }
-  .emoji {
-    font-size: 2.8rem;
-    line-height: 1;
+  .artwork {
+    width: 115%;
+    height: 4.2rem;
+    object-fit: contain;
+    pointer-events: none;
   }
-  .sm .emoji {
-    font-size: 2rem;
+  .sm .artwork {
+    height: 3rem;
   }
   .value {
     margin-top: 0.375rem;
@@ -206,11 +259,11 @@
       width: 3.75rem;
       height: 5.375rem;
     }
-    .emoji {
-      font-size: 2rem;
+    .artwork {
+      height: 3rem;
     }
-    .sm .emoji {
-      font-size: 1.6rem;
+    .sm .artwork {
+      height: 2.4rem;
     }
     .value {
       font-size: 1.55rem;

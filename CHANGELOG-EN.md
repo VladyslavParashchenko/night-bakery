@@ -1,5 +1,28 @@
 # What's new
 
+## 1.10.0 — 12 November 2026
+
+### Changed
+
+- Opponents’ card backs now have a warm bakery-inspired design.
+- Card illustrations are a little larger.
+- Removed the decorative borders from cards.
+- Cards in ovens overlap more closely, keeping stacks compact.
+- Pastry and cook cards now feature illustrated artwork.
+- Card backgrounds have a subtle print texture and a warm glow around the illustrations.
+- The Chef’s colour choices use the matching pastry illustrations and card-style backgrounds.
+- A warm, subtly patterned background now carries the bakery atmosphere across the game.
+- The table fits on one screen without scrolling. The ovens take the
+  height that is left, opponents' seats are one compact row, the end turn
+  button sits next to your name, and the hand is a single row whose cards
+  overlap as it grows, always showing their values.
+- The event log opens from the scroll button in the top bar instead of
+  taking space under the table.
+- Cards you can't play are faded without turning see-through.
+- The start page fits on one screen and sits in the middle of tall ones:
+  the logo shrinks on short screens, the tagline under it is gone, and the
+  version moved next to the settings.
+
 ## 1.9.2 — 7 November 2026
 
 ### Fixed

@@ -87,13 +87,17 @@
 </button>
 
 <style>
+  /* Grows to the height the table gives the ovens, up to a point; the
+     chamber takes the extra. */
   .oven {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
     width: 100%;
+    height: 100%;
+    max-height: 28rem;
     min-width: 0;
-    padding: 0.875rem 0.875rem 1rem;
+    padding: 0.625rem 0.75rem 0.75rem;
     color: inherit;
     text-align: left;
     background: linear-gradient(
@@ -159,6 +163,10 @@
   /* An arched brick mouth with a glow rising from the embers below. */
   .chamber {
     position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
     padding: 1.25rem 0.625rem 0.625rem;
     background:
       radial-gradient(
@@ -249,8 +257,8 @@
      that the stack overflows. --card-w must match GameCard's sm width. */
   .stack {
     --card-w: 4.75rem;
-    --overlap: -2.75rem;
-    --overlap-max: -3.5rem;
+    --overlap: -4.25rem;
+    --overlap-max: -4.5rem;
   }
   .stacked:not(:first-child) {
     margin-left: clamp(
@@ -312,6 +320,7 @@
   }
   @media (max-width: 600px) {
     .oven {
+      max-height: 20rem;
       gap: 0.5rem;
       padding: 0.5rem 0.5rem 0.625rem;
       border-radius: 1rem 1rem 0.75rem 0.75rem;
@@ -328,11 +337,11 @@
       border-width: 0.1875rem 0.1875rem 0.125rem;
       border-radius: 50% 50% 0.5rem 0.5rem / 1.75rem 1.75rem 0.5rem 0.5rem;
     }
-    /* Phone cards are 3.75rem wide and already overlap as far as they can. */
+    /* Phone cards are narrower but keep a similarly slim visible edge. */
     .stack {
       --card-w: 3.75rem;
-      --overlap: -3.25rem;
-      --overlap-max: -3.25rem;
+      --overlap: -3.375rem;
+      --overlap-max: -3.5rem;
       min-height: 5.5rem;
     }
     .embers {
